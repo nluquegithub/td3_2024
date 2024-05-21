@@ -1,0 +1,91 @@
+
+first_test.elf:     file format elf32-littlearm
+
+Raw dump of debug contents of section .debug_line:
+
+  Offset:                      0x0
+  Length:                      59
+  DWARF Version:               2
+  Prologue Length:             32
+  Minimum Instruction Length:  2
+  Initial value of 'is_stmt':  1
+  Line Base:                   -5
+  Line Range:                  14
+  Opcode Base:                 13
+
+ Opcodes:
+  Opcode 1 has 0 args
+  Opcode 2 has 1 args
+  Opcode 3 has 1 args
+  Opcode 4 has 1 args
+  Opcode 5 has 1 args
+  Opcode 6 has 0 args
+  Opcode 7 has 0 args
+  Opcode 8 has 0 args
+  Opcode 9 has 1 args
+  Opcode 10 has 0 args
+  Opcode 11 has 0 args
+  Opcode 12 has 1 args
+
+ The Directory Table is empty.
+
+ The File Name Table (offset 0x1c):
+  Entry	Dir	Time	Size	Name
+  1	0	0	0	startup.s
+
+ Line Number Statements:
+  [0x0000002a]  Extended opcode 2: set Address to 0x70010000
+  [0x00000031]  Special opcode 8: advance Address by 0 to 0x70010000 and Line by 3 to 4
+  [0x00000032]  Special opcode 34: advance Address by 4 to 0x70010004 and Line by 1 to 5
+  [0x00000033]  Special opcode 34: advance Address by 4 to 0x70010008 and Line by 1 to 6
+  [0x00000034]  Special opcode 37: advance Address by 4 to 0x7001000c and Line by 4 to 10
+  [0x00000035]  Special opcode 34: advance Address by 4 to 0x70010010 and Line by 1 to 11
+  [0x00000036]  Special opcode 35: advance Address by 4 to 0x70010014 and Line by 2 to 13
+  [0x00000037]  Special opcode 34: advance Address by 4 to 0x70010018 and Line by 1 to 14
+  [0x00000038]  Special opcode 36: advance Address by 4 to 0x7001001c and Line by 3 to 17
+  [0x00000039]  Special opcode 34: advance Address by 4 to 0x70010020 and Line by 1 to 18
+  [0x0000003a]  Advance PC by 4 to 0x70010024
+  [0x0000003c]  Extended opcode 1: End of Sequence
+
+
+Contents of the .debug_info section:
+
+  Compilation Unit @ offset 0x0:
+   Length:        0x82 (32-bit)
+   Version:       2
+   Abbrev Offset: 0x0
+   Pointer Size:  4
+ <0><b>: Abbrev Number: 1 (DW_TAG_compile_unit)
+    <c>   DW_AT_stmt_list   : 0x0
+    <10>   DW_AT_low_pc      : 0x70010000
+    <14>   DW_AT_high_pc     : 0x70010024
+    <18>   DW_AT_name        : startup.s
+    <22>   DW_AT_comp_dir    : /mnt/hgfs/UTN/TD3/_TD3_ 2024/qemu_tests/qemu_tests/qemu_segundo_test/suma_assembler
+    <76>   DW_AT_producer    : GNU AS 2.28.2
+    <84>   DW_AT_language    : 32769	(MIPS assembler)
+
+Contents of the .debug_abbrev section:
+
+  Number TAG (0x0)
+   1      DW_TAG_compile_unit    [no children]
+    DW_AT_stmt_list    DW_FORM_data4
+    DW_AT_low_pc       DW_FORM_addr
+    DW_AT_high_pc      DW_FORM_addr
+    DW_AT_name         DW_FORM_string
+    DW_AT_comp_dir     DW_FORM_string
+    DW_AT_producer     DW_FORM_string
+    DW_AT_language     DW_FORM_data2
+    DW_AT value: 0     DW_FORM value: 0
+
+Contents of the .debug_aranges section:
+
+  Length:                   28
+  Version:                  2
+  Offset into .debug_info:  0x0
+  Pointer Size:             4
+  Segment Size:             0
+
+    Address    Length
+    70010000 00000024 
+    00000000 00000000 
+
