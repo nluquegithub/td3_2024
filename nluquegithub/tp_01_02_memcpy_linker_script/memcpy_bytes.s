@@ -17,9 +17,9 @@
                                 // "ax" son progbits flags para indicar que la seccion es "a" allocable (re-ubicable) y "x" ejecutable.
 _start:                         // Simbolo que le indica al linker donde arranca el programa.
 
-        LDR R0, =__KERNEL_START_VMA                // PUNTERO_DESTINO
-        LDR R1, =__KERNEL_START_LMA                // PUNTERO_FUENTE
-        LDR R2, =__PRUEBA_SIZE               // CANT_BYTES a copiar
+        LDR R0, =__KERNEL_START_VMA             // PUNTERO_DESTINO
+        LDR R1, =__KERNEL_START_LMA             // PUNTERO_FUENTE
+        LDR R2, =__KERNEL_SIZE                  // CANT_BYTES a copiar
 
         BL memcpy_byte
         B prueba             /* saltar al codigo de la section a ejecutar en VMA */
@@ -41,22 +41,22 @@ memcpy_end:
 
 prueba:
         LDR R0, =variable
-        LDR R1, #4
+        MOV R1, #4
         STR R1, [R0]
-        B.
+        B .
 
 
 /*---------------------------------------------------------------------------------------------------------  .bss */
 .section .bss   // Sección de datos no inicializados.
                 // "w" -> se puede escribir.
 variable:
-        .space __BSS_SIZE
+        .space =__BSS_SIZE
 
 
 /*---------------------------------------------------------------------------------------------------------  .pila */
 .section .pila
 _pila:
-        .space __PILA_SIZE        // Reservar una palabra para guardar el factorial.
+        .space =__PILA_SIZE        // Reservar una palabra para guardar el factorial.
                               /* el .space es como "saltearse" de a bytes, en este caso 4 bytes,
                               como reservar espacio para algo,
                               que en nuestro ejemplo es como reservar una variable vacia */

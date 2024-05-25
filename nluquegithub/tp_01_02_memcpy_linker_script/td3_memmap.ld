@@ -24,7 +24,7 @@ MEMORY
     public_rom	: org = _PUBLIC_ROM_INIT, len = 0x1000
     public_ram	: org = _PUBLIC_RAM_INIT, len = 0x1000
     public_stack : org = _PUBLIC_STACK_INIT, len = __PILA_SIZE
-    microKernel_vma : org = __KERNEL_VMA, len = 0x1000
+    microKernel_vma : org = __KERNEL_START_VMA, len = 0x1000
 }
 REGION_ALIAS("microKernel_lma", public_ram);
 
@@ -43,23 +43,23 @@ SECTIONS
     .memcpy_out : 
         { 
             *(.memcpy_asm)
-        } 
+        } >microKernel_vma AT>microKernel_lma /*>region_vma*/ /*AT>region_lma*/ 
 
 
     /*	especifico VMA (donde se va a ejecutar) <> que LMA donde debe estar grabado o pegado por el programador usando funcion memcpy */
     .kernel_out :
         { 
-            __KERNEL_VMA = . ;
+            __KERNEL_START_VMA = . ;
             *(.kernel*)
-        } AT> microKernel_lma /*region_lma*/ > microKernel_vma /*region_vma*/
+        } >microKernel_vma AT>microKernel_lma /*>region_vma*/ /*AT>region_lma*/ 
     
 	__KERNEL_SIZE = SIZEOF(.kernel_out) ;
-    __KERNEL_LMA = LOADADDR(.kernel_out) ;
+    __KERNEL_START_LMA = LOADADDR(.kernel_out) ;
     
     .data : 
         { 
             *(.data*) 
-        } AT> public_ram > public_ram /* #TODO cuando usemos la memoria ROM tengo que modificar la LMA  */
+        } >public_ram AT>public_ram /* #TODO cuando usemos la memoria ROM tengo que modificar la LMA  */
 
     .bss : 
         {
@@ -67,7 +67,7 @@ SECTIONS
             __bss_start__ = .;
             *(.bss*)
             __bss_end__ = .;
-        } > public_ram
+        } >public_ram
     
 
     .pila_out : 
@@ -76,6 +76,6 @@ SECTIONS
             __PILA_START = .;
             *(.pila*)
             __PILA_END = .;
-        } > public_stack
+        } >public_stack
 
 }
