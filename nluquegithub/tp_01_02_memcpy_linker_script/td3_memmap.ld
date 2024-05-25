@@ -12,6 +12,7 @@ ENTRY(_start)
 _PUBLIC_ROM_INIT = 0x00000000;
 _PUBLIC_RAM_INIT = 0x70010000;
 _PUBLIC_STACK_INIT = 0x70020000;
+__KERNEL_START_VMA = 0x70030000;
 __PILA_SIZE = 16*1024;
 __BSS_SIZE = 4 ;
 
@@ -43,13 +44,13 @@ SECTIONS
     .memcpy_out : 
         { 
             *(.memcpy_asm)
-        } >microKernel_vma AT>microKernel_lma /*>region_vma*/ /*AT>region_lma*/ 
+        } >microKernel_lma AT>microKernel_lma /*>region_vma*/ /*AT>region_lma*/ 
 
 
     /*	especifico VMA (donde se va a ejecutar) <> que LMA donde debe estar grabado o pegado por el programador usando funcion memcpy */
     .kernel_out :
         { 
-            __KERNEL_START_VMA = . ;
+            /*__KERNEL_START_VMA = . ;*/ /* aqui hubiera estado el star vma por el location counter, pero definimos el simbolo antes manualmente */
             *(.kernel*)
         } >microKernel_vma AT>microKernel_lma /*>region_vma*/ /*AT>region_lma*/ 
     
