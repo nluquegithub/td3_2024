@@ -1,4 +1,5 @@
 // memcpy_bytes.s 2024.04.09
+// este es un borrador comentado en clase, no fue probado
 
 // COPIAR UN BLOQUE DE MEMORIA
 // de a 1 byte memcpy
