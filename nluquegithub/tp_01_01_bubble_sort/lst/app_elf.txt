@@ -1,0 +1,120 @@
+ELF Header:
+  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              EXEC (Executable file)
+  Machine:                           ARM
+  Version:                           0x1
+  Entry point address:               0x70010000
+  Start of program headers:          52 (bytes into file)
+  Start of section headers:          132992 (bytes into file)
+  Flags:                             0x5000200, Version5 EABI, soft-float ABI
+  Size of this header:               52 (bytes)
+  Size of program headers:           32 (bytes)
+  Number of program headers:         3
+  Size of section headers:           40 (bytes)
+  Number of section headers:         15
+  Section header string table index: 14
+
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .memcpy_out       PROGBITS        70010000 010000 00003c 00  AX  0   0  4
+  [ 2] .kernel_out       PROGBITS        70030000 020000 00009c 00  AX  0   0  4
+  [ 3] .data             PROGBITS        700100d8 0200d8 000028 00  WA  0   0  1
+  [ 4] .bss              NOBITS          70010100 020100 000000 00  WA  0   0  1
+  [ 5] .pila_out         PROGBITS        70020000 020100 000000 00      0   0  1
+  [ 6] .ARM.attributes   ARM_ATTRIBUTES  00000000 020100 000016 00      0   0  1
+  [ 7] .debug_line       PROGBITS        00000000 020116 00008a 00      0   0  1
+  [ 8] .debug_info       PROGBITS        00000000 0201a0 000073 00      0   0  1
+  [ 9] .debug_abbrev     PROGBITS        00000000 020213 000012 00      0   0  1
+  [10] .debug_aranges    PROGBITS        00000000 020228 000028 00      0   0  8
+  [11] .debug_ranges     PROGBITS        00000000 020250 000020 00      0   0  8
+  [12] .symtab           SYMTAB          00000000 020270 0002f0 10     13  33  4
+  [13] .strtab           STRTAB          00000000 020560 000183 00      0   0  1
+  [14] .shstrtab         STRTAB          00000000 0206e3 00009b 00      0   0  1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  D (mbind), y (purecode), p (processor specific)
+
+There are no section groups in this file.
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  LOAD           0x010000 0x70010000 0x70010000 0x0003c 0x0003c R E 0x10000
+  LOAD           0x020000 0x70030000 0x7001003c 0x0009c 0x0009c R E 0x10000
+  LOAD           0x0200d8 0x700100d8 0x700100d8 0x00028 0x00028 RW  0x10000
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     .memcpy_out 
+   01     .kernel_out 
+   02     .data 
+
+There is no dynamic section in this file.
+
+There are no relocations in this file.
+
+There are no unwind sections in this file.
+
+Symbol table '.symtab' contains 47 entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 70010000     0 SECTION LOCAL  DEFAULT    1 .memcpy_out
+     2: 70030000     0 SECTION LOCAL  DEFAULT    2 .kernel_out
+     3: 700100d8     0 SECTION LOCAL  DEFAULT    3 .data
+     4: 70010100     0 SECTION LOCAL  DEFAULT    4 .bss
+     5: 70020000     0 SECTION LOCAL  DEFAULT    5 .pila_out
+     6: 00000000     0 SECTION LOCAL  DEFAULT    6 .ARM.attributes
+     7: 00000000     0 SECTION LOCAL  DEFAULT    7 .debug_line
+     8: 00000000     0 SECTION LOCAL  DEFAULT    8 .debug_info
+     9: 00000000     0 SECTION LOCAL  DEFAULT    9 .debug_abbrev
+    10: 00000000     0 SECTION LOCAL  DEFAULT   10 .debug_aranges
+    11: 00000000     0 SECTION LOCAL  DEFAULT   11 .debug_ranges
+    12: 00000000     0 FILE    LOCAL  DEFAULT  ABS obj/bubble_sort.o
+    13: 70010000     0 NOTYPE  LOCAL  DEFAULT    1 $a
+    14: 70010014     0 NOTYPE  LOCAL  DEFAULT    1 memcpy_byte
+    15: 70030000     0 NOTYPE  LOCAL  DEFAULT    2 bubble_sort
+    16: 7001002c     0 NOTYPE  LOCAL  DEFAULT    1 memcpy_end
+    17: 7001001c     0 NOTYPE  LOCAL  DEFAULT    1 memcpy_loop
+    18: 70010100     0 NOTYPE  LOCAL  DEFAULT    4 variables_no_init
+    19: 70030000     0 NOTYPE  LOCAL  DEFAULT    2 $a
+    20: 700100d8     0 NOTYPE  LOCAL  DEFAULT    3 variables_init
+    21: 70030010     0 NOTYPE  LOCAL  DEFAULT    2 bubble_start
+    22: 70030028     0 NOTYPE  LOCAL  DEFAULT    2 compare
+    23: 70030074     0 NOTYPE  LOCAL  DEFAULT    2 swap_values
+    24: 70030038     0 NOTYPE  LOCAL  DEFAULT    2 next_in
+    25: 7003004c     0 NOTYPE  LOCAL  DEFAULT    2 next_out
+    26: 70030040     0 NOTYPE  LOCAL  DEFAULT    2 next_in_set
+    27: 70030090     0 NOTYPE  LOCAL  DEFAULT    2 bubble_end
+    28: 70030060     0 NOTYPE  LOCAL  DEFAULT    2 next_out_set
+    29: 70020000     0 NOTYPE  LOCAL  DEFAULT    5 _pila
+    30: 70030094     0 NOTYPE  LOCAL  DEFAULT    2 $d
+    31: 70010030     0 NOTYPE  LOCAL  DEFAULT    1 $d
+    32: 700100d8     0 NOTYPE  LOCAL  DEFAULT    3 $d
+    33: 00000028     0 NOTYPE  GLOBAL DEFAULT  ABS __DATA_SIZE
+    34: 00000028     0 NOTYPE  GLOBAL DEFAULT  ABS __BSS_SIZE
+    35: 70020000     0 NOTYPE  GLOBAL DEFAULT    5 __PILA_START
+    36: 70010100     0 NOTYPE  GLOBAL DEFAULT    4 __bss_start__
+    37: 70010000     0 NOTYPE  GLOBAL DEFAULT  ABS _PUBLIC_RAM_INIT
+    38: 70010100     0 NOTYPE  GLOBAL DEFAULT    4 __bss_end__
+    39: 70010000     0 NOTYPE  GLOBAL DEFAULT    1 _start
+    40: 0000009c     0 NOTYPE  GLOBAL DEFAULT  ABS __KERNEL_SIZE
+    41: 70030000     0 NOTYPE  GLOBAL DEFAULT  ABS __KERNEL_START_VMA
+    42: 00004000     0 NOTYPE  GLOBAL DEFAULT  ABS __PILA_SIZE
+    43: 00000000     0 NOTYPE  GLOBAL DEFAULT  ABS _PUBLIC_ROM_INIT
+    44: 70020000     0 NOTYPE  GLOBAL DEFAULT    5 __PILA_END
+    45: 7001003c     0 NOTYPE  GLOBAL DEFAULT  ABS __KERNEL_START_LMA
+    46: 70020000     0 NOTYPE  GLOBAL DEFAULT  ABS _PUBLIC_STACK_INIT
+
+No version information found in this file.
+Attribute Section: aeabi
+File Attributes
+  Tag_CPU_arch: v4T
+  Tag_ARM_ISA_use: Yes
+  Tag_THUMB_ISA_use: Thumb-1
