@@ -10,7 +10,7 @@ ELF Header:
   Version:                           0x1
   Entry point address:               0x70010000
   Start of program headers:          52 (bytes into file)
-  Start of section headers:          132400 (bytes into file)
+  Start of section headers:          132412 (bytes into file)
   Flags:                             0x5000200, Version5 EABI, soft-float ABI
   Size of this header:               52 (bytes)
   Size of program headers:           32 (bytes)
@@ -27,14 +27,14 @@ Section Headers:
   [ 3] .bss              NOBITS          70010050 020050 000000 00  WA  0   0  1
   [ 4] .pila_out         PROGBITS        70020000 020014 000000 00      0   0  1
   [ 5] .ARM.attributes   ARM_ATTRIBUTES  00000000 020014 000016 00      0   0  1
-  [ 6] .debug_line       PROGBITS        00000000 02002a 000061 00      0   0  1
-  [ 7] .debug_info       PROGBITS        00000000 02008b 000079 00      0   0  1
-  [ 8] .debug_abbrev     PROGBITS        00000000 020104 000012 00      0   0  1
-  [ 9] .debug_aranges    PROGBITS        00000000 020118 000028 00      0   0  8
-  [10] .debug_ranges     PROGBITS        00000000 020140 000020 00      0   0  8
-  [11] .symtab           SYMTAB          00000000 020160 000230 10     12  22  4
-  [12] .strtab           STRTAB          00000000 020390 000108 00      0   0  1
-  [13] .shstrtab         STRTAB          00000000 020498 000095 00      0   0  1
+  [ 6] .debug_line       PROGBITS        00000000 02002a 000065 00      0   0  1
+  [ 7] .debug_info       PROGBITS        00000000 02008f 00007d 00      0   0  1
+  [ 8] .debug_abbrev     PROGBITS        00000000 02010c 000012 00      0   0  1
+  [ 9] .debug_aranges    PROGBITS        00000000 020120 000028 00      0   0  8
+  [10] .debug_ranges     PROGBITS        00000000 020148 000020 00      0   0  8
+  [11] .symtab           SYMTAB          00000000 020168 000230 10     12  22  4
+  [12] .strtab           STRTAB          00000000 020398 00010c 00      0   0  1
+  [13] .shstrtab         STRTAB          00000000 0204a4 000095 00      0   0  1
 Key to Flags:
   W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
   L (link order), O (extra OS processing required), G (group), T (TLS),
@@ -74,7 +74,7 @@ Symbol table '.symtab' contains 35 entries:
      8: 00000000     0 SECTION LOCAL  DEFAULT    8 .debug_abbrev
      9: 00000000     0 SECTION LOCAL  DEFAULT    9 .debug_aranges
     10: 00000000     0 SECTION LOCAL  DEFAULT   10 .debug_ranges
-    11: 00000000     0 FILE    LOCAL  DEFAULT  ABS memcpy_bytes.o
+    11: 00000000     0 FILE    LOCAL  DEFAULT  ABS obj/memcpy_bytes.o
     12: 70010000     0 NOTYPE  LOCAL  DEFAULT    1 $a
     13: 70010014     0 NOTYPE  LOCAL  DEFAULT    1 memcpy_byte
     14: 70030000     0 NOTYPE  LOCAL  DEFAULT    2 prueba
