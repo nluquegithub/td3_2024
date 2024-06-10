@@ -1,4 +1,5 @@
 // memcpy_bytes.s 2024.04.09
+// 2024.05.25 probado en DDD y GDB ok
 // COPIAR UN BLOQUE DE MEMORIA de a 1 byte memcpy
 
 /* Simbolos de direcciones definidas externamente en otro archivo o en linker_script */
