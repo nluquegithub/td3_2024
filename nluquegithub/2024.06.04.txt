@@ -1,0 +1,37 @@
+// MMU 2024-06-04 19:52:52 comentarios de Alpern
+
+/**
+ * @brief   subrutina Paginar_2()
+ * @details Lo que debe hacer la subrutina es seguir la lógica del microprocesador para llenar las páginas.
+ *          Si la tabla de 2do nivel no existe -> crearla (llenar todas las entry con ceros, para generar los fault en entry invalida, antes de poner los válidos), escribiendo DESCRIPTOR de 1er nivel.
+ *          Luego se puede escribir el descriptor de 2do nivel.
+ * 
+ * @param   dir de memoria PA. Identificar las 3 partes de los 32 bits, para llenar las tablas.
+ * 
+ */
+
+
+/**
+ * @brief   subrutina Paginar_1()
+ * @details Hacer un loop, llamando a la subrutina Paginar_2(), pasándole:
+ *           'dir_inicio', 'dir_inicio + 4096', etc... hasta pasar por todas las páginas (ver tamanno)
+ * 
+ * @param   dir de inicio
+ * @param   tamanno
+ * 
+ */
+
+/* NOTE! Secuencia paginar tablas MMU:
+[ ] Llamar a subrutina_1 por cada seccion.
+    [ ] Tener en cuenta seccion, si es de código o datos, los flags 'XN', etc (hardcoded?)
+[ ] Llamar a subrutina_1 por cada periférico, con propiedades 'DEVICE'.
+*/
+
+/*
+Cant_Descriptores_L2 = ( long_seccion + 4095) / 4096 nos quedamos con la parte entera
+EJ: si long_seccion es 4096, el resultado da 1.algo, nos quedamos con entero 1 entry
+
+'''
+LSR R0, R0, #12
+'''
+*/
