@@ -17,7 +17,7 @@
 
 /*--------------------------------------------------------------------------------------------------------------------------------------- .kernel Inicializado */
 
-.section .kernel, "ax"
+.section .kernel_1, "ax"
 
 /*	Esta seccion de assembler lleva el código a ejecutarse, una vez terminada la secuencia_reset, pero que debería haberse ya copiado desde su LMA a su VMA.
 Es decir, es esperable que esta seccion se ejecute desde RAM.

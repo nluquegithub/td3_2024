@@ -70,8 +70,8 @@ endef
 ## Proyecto
 APP 	:= app
 CHAIN	:= arm-linux-gnueabihf
-# LSCRIPT	:= linker_script.ld
-LSCRIPT	:= td3_memmap.ld
+LSCRIPT	:= linker_script.ld
+# LSCRIPT	:= td3_memmap.ld
 BOARD	:= realview-pb-a8
 
 ## otras placas posibles a emular descomentar la que se quiera usar

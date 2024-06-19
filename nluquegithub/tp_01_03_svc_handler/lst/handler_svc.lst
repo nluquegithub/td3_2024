@@ -1,0 +1,149 @@
+ARM GAS  src/handler_svc.s 			page 1
+
+
+   1              	// handler_svc.s 2024-06-04
+   2              	/*3. INTERRUPCIONES BÁSICAS - SWI 
+   3              	 
+   4              	Se pide continuar el ejercicio anterior incorporando un sistema básico de atención de 
+   5              	interrupciones/excepciones. 
+   6              	 
+   7              	Para tal fin, se deberá definir un “handler” genérico para atender la interrupción SVC. 
+   8              	 
+   9              	Para  corroborar  su funcionamiento, debemos  poder  llamar a  la  instrucción  SWI  y  validar  q
+  10              	atendemos el pedido correctamente.
+  11              	*/
+  12              	
+  13              	/* Máscaras para modo Thumb o ARM bit (5) del CPSR/SPSR. */
+  14              	.equ T_BIT,    0x20
+  15              	
+  16              	/* Explicitamos símbolos globales para que puedan ser vistos por otros archivos y por el mapa de m
+  17              	.global SVC_Handler
+  18              	
+  19              	.global Undefined_Handler
+  20              	.global Prefetch_Handler
+  21              	.global Abort_Handler
+  22              	.global IRQ_Handler
+  23              	
+  24              	/*-------------------------------------------------------------------------------------------------
+  25              	
+  26              	.section .exception_handlers, "ax"
+  27              	
+  28              	SVC_Handler:
+  29              	
+  30              	
+  31              		/* Guardar el estado del contexto si es necesario */  /*------------------------------ PREAMBULO (
+  32              			/* En caso de un nuevo SVC call, se perderían si no lo guardamos en la pila */
+  33 0000 0F502DE9 	    STMFD   sp!, {r0-r3, r12, lr}	// Store registers
+  34              						// Push onto a Full Descending Stack
+  35              	
+  36              			/* Obtener puntero a los parámetros que sean necesarios, guardados por el usuario en el stack */
+  37 0004 0D10A0E1 	    MOV     r1, sp                 // Set pointer to parameters
+  38 0008 00004FE1 	    MRS     r0, spsr               // Get spsr
+  39 000c 09002DE9 	    STMFD   sp!, {r0, r3}          // Store spsr onto stack and another register to maintain 8-byte
+  40              	                                   // Only required for nested SVCs.
+  41              	
+  42              		/* Máscara para determinar en qué modo estaba antes de SVC */
+  43 0010 200010E3 		TST     r0, #T_BIT             // Occurred in Thumb state?
+  44              	
+  45              		/* Obtener el número de SVC que está embebido en la instruccion.*/
+  46              			/* Por eso buscamos la dirección en que quedó el anterior pc (o sea el lr) y...*/
+  47 0014 B2005E11 	    LDRNEH  r0, [lr,#-2]           // Yes: Load halfword and...	/*  -2 posiciones es la instrucció
+  48 0018 FF0CC013 	    BICNE   r0, r0, #0xFF00        // ...extract comment field	/*		filtramos el SVC_number */
+  49 001c 04001E05 	    LDREQ   r0, [lr,#-4]           // Load word and...		/*  -4 posiciones es la instrucción, en mo
+  50 0020 FF04C003 	    BICEQ   r0, r0, #0xFF000000    // ...extract comment field	/*		filtramos el SVC_number */
+  51              	
+  52              	    // r0 now contains SVC_number
+  53              	    // r1 now contains pointer to stacked registers	/*------------------------------------ PREAMBUL
+  54              	
+  55              		// Implemento una JUMP_TABLE para atender al service_call según el SVC_number.
+  56              				/* 	Es similar a lograr un SWITCH_CASE pero cada CASE definido tiene que ser un valor consecutiv
+  57              					Todos los casos NO definidos se atenderan por default_case. Es más rápido la ejecución que u
+ARM GAS  src/handler_svc.s 			page 2
+
+
+  58              					hace menos comprobaciones y salta directamente a la etiqueta que debe atender.*/
+  59 0024 0001A0E1 	    LSL r0, r0, #2		@ Multiplica el valor por 4 para obtener el desplazamiento correcto
+  60 0028 54209FE5 		LDR	r2, rango_jump_table	@ rango de tabla permitida para SVC_number saltos de jump_table
+  61 002c 020050E1 	    CMP r0, r2			@ Compara el offset de salto r0 con el rango permitido en la jump_table
+  62 0030 070000AA 	    BGE default_case	@ Salta a default_case si la dir de salto es >= a default, o sea que el SVC_nu
+  63 0034 5C209FE5 	    LDR	r2, =jump_table	@ Cargamos en r2 la dir base para el salto (coincide con case_0 )
+  64 0038 000092E7 	    LDR r0, [r2, r0]	@ Carga la dirección de salto correspondiente de la jump table
+  65 003c 10FF2FE1 	    BX r0           	@ Salta a la dirección de salto cargada si tenemos identificado un case corre
+  66              	
+  67              		case_0:					@ Código para case 0
+  68 0040 050000EA 		    b exit
+  69              	
+  70              		case_1:					@ Código para case 1
+  71 0044 30409FE5 		    LDR r4, str1	// carga r4 con la var str1
+  72 0048 030000EA 		    b exit
+  73              	
+  74              		case_2:					@ Código para case 2
+  75 004c 020000EA 		    b exit
+  76              	
+  77              		case_3:					@ Código para case 3
+  78 0050 010000EA 		    b exit
+  79              	
+  80              		default_case:			@ Código para casos no definidos
+  81 0054 24409FE5 		    LDR r4, str2	// carga r4 con la var str2
+  82 0058 FFFFFFEA 		    b exit
+  83              	
+  84              		exit:					@ Código de salida en comun a todos los case, de ser necesario
+  85              	
+  86              														/*------------------------------------ EPILOGO (devolver contexto)*/
+  87 005c 0900BDE8 	    LDMFD   sp!, {r0, r3}          // Get spsr from stack
+  88 0060 00F069E1 	    MSR     spsr, r0               // Restore spsr
+  89 0064 0F90FDE8 	    LDMFD   sp!, {r0-r3, r12, pc}^ // Restore registers and return
+  90              										// Pop from a Full Descending Stack
+  91              		/*The ^ qualifier specifies that the CPSR is restored from the SPSR. It must be used only from a p
+  92              														/*------------------------------------ EPILOGO (contexto devuelto)*/
+  93              	
+  94              		jump_table:
+  95 0068 40000000 			case_0_addr:		.word case_0	     @ Dirección de la etiqueta case_0
+  96 006c 44000000 			case_1_addr:		.word case_1    	 @ Dirección de la etiqueta case_1
+  97 0070 4C000000 			case_2_addr:		.word case_2    	 @ Dirección de la etiqueta case_2
+  98 0074 50000000 			case_3_addr:		.word case_3    	 @ Dirección de la etiqueta case_3
+  99 0078 54000000 			default_case_addr:	.word default_case   @ Dirección de salto por defecto
+ 100              	
+ 101 007c 01AACCAA 		str1: 	.word 	0xAACCAA01
+ 102 0080 05AACCAA 		str2: 	.word 	0xAACCAA05
+ 103              	
+ 104 0084 10000000 		rango_jump_table:		.word (default_case_addr - case_0_addr) @ para evaluar si el salto está permit
+ 105              	
+ 106              	
+ 107              	/* #TODO comentar las etiquetas de los handlers quese vayan implementando */
+ 108 0088 FEFFFFEA 	Undefined_Handler:	B .
+ 109 008c FEFFFFEA 	Prefetch_Handler:	B .
+ 110 0090 FEFFFFEA 	Abort_Handler:		B .
+ 111 0094 FEFFFFEA 	IRQ_Handler:		B .
+ 111      68000000 
+ARM GAS  src/handler_svc.s 			page 3
+
+
+DEFINED SYMBOLS
+   src/handler_svc.s:14     *ABS*:0000000000000020 T_BIT
+   src/handler_svc.s:28     .exception_handlers:0000000000000000 SVC_Handler
+   src/handler_svc.s:108    .exception_handlers:0000000000000088 Undefined_Handler
+   src/handler_svc.s:109    .exception_handlers:000000000000008c Prefetch_Handler
+   src/handler_svc.s:110    .exception_handlers:0000000000000090 Abort_Handler
+   src/handler_svc.s:111    .exception_handlers:0000000000000094 IRQ_Handler
+   src/handler_svc.s:33     .exception_handlers:0000000000000000 $a
+   src/handler_svc.s:104    .exception_handlers:0000000000000084 rango_jump_table
+   src/handler_svc.s:80     .exception_handlers:0000000000000054 default_case
+   src/handler_svc.s:94     .exception_handlers:0000000000000068 jump_table
+   src/handler_svc.s:67     .exception_handlers:0000000000000040 case_0
+   src/handler_svc.s:84     .exception_handlers:000000000000005c exit
+   src/handler_svc.s:70     .exception_handlers:0000000000000044 case_1
+   src/handler_svc.s:101    .exception_handlers:000000000000007c str1
+   src/handler_svc.s:74     .exception_handlers:000000000000004c case_2
+   src/handler_svc.s:77     .exception_handlers:0000000000000050 case_3
+   src/handler_svc.s:102    .exception_handlers:0000000000000080 str2
+   src/handler_svc.s:95     .exception_handlers:0000000000000068 case_0_addr
+   src/handler_svc.s:95     .exception_handlers:0000000000000068 $d
+   src/handler_svc.s:96     .exception_handlers:000000000000006c case_1_addr
+   src/handler_svc.s:97     .exception_handlers:0000000000000070 case_2_addr
+   src/handler_svc.s:98     .exception_handlers:0000000000000074 case_3_addr
+   src/handler_svc.s:99     .exception_handlers:0000000000000078 default_case_addr
+   src/handler_svc.s:108    .exception_handlers:0000000000000088 $a
+   src/handler_svc.s:111    .exception_handlers:0000000000000098 $d
+
+NO UNDEFINED SYMBOLS

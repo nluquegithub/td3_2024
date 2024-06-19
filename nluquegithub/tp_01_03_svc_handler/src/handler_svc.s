@@ -16,6 +16,11 @@ atendemos el pedido correctamente.
 /* Explicitamos símbolos globales para que puedan ser vistos por otros archivos y por el mapa de memoria */
 .global SVC_Handler
 
+.global Undefined_Handler
+.global Prefetch_Handler
+.global Abort_Handler
+.global IRQ_Handler
+
 /*---------------------------------------------------------------------------------------------------------  .exception_handlers SVC_Handler */
 
 .section .exception_handlers, "ax"
@@ -99,6 +104,7 @@ SVC_Handler:
 	rango_jump_table:		.word (default_case_addr - case_0_addr) @ para evaluar si el salto está permitido
 
 
+/* #TODO comentar las etiquetas de los handlers quese vayan implementando */
 Undefined_Handler:	B .
 Prefetch_Handler:	B .
 Abort_Handler:		B .

@@ -1,0 +1,52 @@
+ARM GAS  src/kernel.s 			page 1
+
+
+   1              	// kernel.s 
+   2              	
+   3              	/* Definiciones */
+   4              	@ .equ USR_MODE, 0x10
+   5              	
+   6              	
+   7              	/* Symbols de direcciones definidas externamente en otro archivo o en linker_script */
+   8              	@ .extern	__VECTOR_TABLE_BASE
+   9              	
+  10              	
+  11              	/* Explicitamos símbolos globales para que puedan ser vistos por otros archivos y por el mapa de m
+  12              	.global Inicializado
+  13              	
+  14              	.code 32			//especificamos que la siguiente seccion es código de 32-bits
+  15              	
+  16              	
+  17              	
+  18              	/*-------------------------------------------------------------------------------------------------
+  19              	
+  20              	.section .kernel_1, "ax"
+  21              	
+  22              	/*	Esta seccion de assembler lleva el código a ejecutarse, una vez terminada la secuencia_reset, p
+  23              	Es decir, es esperable que esta seccion se ejecute desde RAM.
+  24              	 */
+  25              	
+  26              	Inicializado:
+  27              	
+  28              		// Llamadas a SVC, cambia a modo supervisor y ejecuta un servicio en modo privilegiado
+  29 0000 010000EF 		SVC #1	@ ejemplo de un service_call definido
+  30 0004 050000EF 		SVC #5	@ ejemplo de un service_call NO definido, realiza una tarea por default_case
+  31              	
+  32              		@ // Code before entering the low-power mode
+  33              		@     // Insert the WFI instruction
+  34              		@ WFI
+  35              	    @ 	// Code after an interrupt wakes up the processor
+  36              	
+  37 0008 FEFFFFEA 		B .		@ loop infinito en el mismo punto
+  38              	
+  39              	
+  40              	/* NOTE! acá iría mi código main o el programa que sea */
+  41              	
+ARM GAS  src/kernel.s 			page 2
+
+
+DEFINED SYMBOLS
+        src/kernel.s:26     .kernel_1:0000000000000000 Inicializado
+        src/kernel.s:29     .kernel_1:0000000000000000 $a
+
+NO UNDEFINED SYMBOLS

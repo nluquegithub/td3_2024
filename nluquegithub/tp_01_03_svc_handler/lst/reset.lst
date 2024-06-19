@@ -1,0 +1,170 @@
+ARM GAS  src/reset.s 			page 1
+
+
+   1              	// secuencia_reset.s 
+   2              	
+   3              	/* Defino etiquetas para luego hacer los cambios de modo */
+   4              	.equ USR_MODE, 0x10
+   5              	.equ FIQ_MODE, 0x11
+   6              	.equ IRQ_MODE, 0x12
+   7              	.equ SVC_MODE, 0x13
+   8              	.equ ABT_MODE, 0x17
+   9              	.equ UND_MODE, 0x1B
+  10              	.equ SYS_MODE, 0x1F
+  11              	/* Mascaras para des-habilitar interrupciones */
+  12              	.equ I_BIT,    0x80
+  13              	.equ F_BIT,    0x40
+  14              	
+  15              	/* Symbols de direcciones definidas externamente en otro archivo o en linker_script */
+  16              	.extern	__VECTOR_TABLE_BASE
+  17              	.extern	__PUBLIC_ROM_INIT
+  18              	.extern	__PUBLIC_STACK_INIT
+  19              	.extern	__PUBLIC_RAM_INIT
+  20              	@ .extern	__KERNEL_START_VMA
+  21              	
+  22              	.extern	__VECTOR_TABLE_START_VMA
+  23              	.extern	__VECTOR_TABLE_START_LMA
+  24              	.extern	__VECTOR_TABLE_SIZE
+  25              	
+  26              	.extern	__RESET_START_VMA
+  27              	.extern	__RESET_START_LMA
+  28              	.extern	__RESET_SIZE
+  29              	
+  30              	.extern	__KERNEL_START_VMA
+  31              	.extern	__KERNEL_START_LMA
+  32              	.extern	__KERNEL_SIZE
+  33              	
+  34              	.extern	__HANDLERS_START_VMA
+  35              	.extern	__HANDLERS_END_VMA
+  36              	
+  37              	.extern	__SYS_STACK_START
+  38              	.extern	__SYS_STACK_SIZE
+  39              	.extern	__SYS_STACK_END
+  40              	
+  41              	.extern	__IRQ_STACK_START
+  42              	.extern	__IRQ_STACK_SIZE
+  43              	.extern	__IRQ_STACK_END
+  44              	
+  45              	.extern	__FIQ_STACK_START
+  46              	.extern	__FIQ_STACK_SIZE
+  47              	.extern	__FIQ_STACK_END
+  48              	
+  49              	.extern	__SVC_STACK_START
+  50              	.extern	__SVC_STACK_SIZE
+  51              	.extern	__SVC_STACK_END
+  52              	
+  53              	.extern	__ABT_STACK_START
+  54              	.extern	__ABT_STACK_SIZE
+  55              	.extern	__ABT_STACK_END
+  56              	
+  57              	.extern	__UND_STACK_START
+ARM GAS  src/reset.s 			page 2
+
+
+  58              	.extern	__UND_STACK_SIZE
+  59              	.extern	__UND_STACK_END
+  60              	
+  61              	.extern	__GAP_SIZE
+  62              	
+  63              	/* Explicitamos simbolos globales para que puedan ser vistos por otros archivos y por el mapa de me
+  64              	.global Reset_Handler
+  65              	
+  66              	@ .code 32			//especificamos que la siguiente seccion es codigo de 32-bits
+  67              	
+  68              	
+  69              	/*-------------------------------------------------------------------------------------------------
+  70              	
+  71              	.section .reset, "ax"
+  72              	
+  73              	
+  74              	Reset_Handler:
+  75              		/* Inicializo modo SVC supervisor */
+  76 0000 00000FE1 		MRS	r0, cpsr			@ Move to general purpose Register a System register
+  77 0004 1F00C0E3 		BIC	r0, r0, #0x1F 		@ bitwise clear, sobre-escribe r0 con una mascara, limpio los primeros bits
+  78 0008 D30080E3 		ORR	r0, r0, #0xD3 		@ OR bitwise 0xD3 11010011 CPSR, pone modo supervisor SVC, modo ARM, irq y fiq
+  79 000c 0F02C0E3 		BIC	r0, r0, #0xF0000000	@ Bitwise bit Clear N, Z, C, V bits
+  80 0010 00F029E1 		MSR	cpsr, r0			@ devuelve al CPSR lo modificado en r0
+  81 0014 68D09FE5 		LDR sp, =__SVC_STACK_END /* aca tengo que inicializar las pilas*/
+  82              	
+  83              	
+  84              	stack_setup:
+  85              		// entro en cada uno de los modos, con interrupciones des-habilitadas, y cargo la direccion max de
+  86              	
+  87 0018 00000FE1 		MRS r0, cpsr					@ Move to general purpose Register a System register
+  88 001c 1F00C0E3 		BIC r0, r0, #0x1F       			@ bitwise clear, sobre-escribe r0 con una mascara, limpio los primeros 
+  89 0020 D20080E3 		ORR r0, r0, #(IRQ_MODE | I_BIT | F_BIT)		@ cambio de modo procesador, irq y fiq = 1 des-habilitado
+  90 0024 00F029E1 		MSR cpsr, r0					@ devuelve al CPSR lo modificado en r0
+  91 0028 58D09FE5 	    LDR SP, =__IRQ_STACK_END
+  92              	
+  93              	@	MRS r0, cpsr					@ Move to general purpose Register a System register
+  94 002c 1F00C0E3 		BIC r0, r0, #0x1F       			@ bitwise clear, sobre-escribe r0 con una mascara, limpio los primeros 
+  95 0030 D10080E3 		ORR r0, r0,#(FIQ_MODE | I_BIT | F_BIT)		@ cambio de modo procesador, irq y fiq = 1 des-habilitados
+  96 0034 00F029E1 		MSR cpsr, r0					@ devuelve al CPSR lo modificado en r0
+  97 0038 4CD09FE5 	    LDR SP, =__FIQ_STACK_END
+  98              	
+  99              	@    MRS r0, cpsr					@ Move to general purpose Register a System register
+ 100 003c 1F00C0E3 		BIC r0, r0, #0x1F       			@ bitwise clear, sobre-escribe r0 con una mascara, limpio los primeros 
+ 101 0040 D30080E3 		ORR r0, r0, #(SVC_MODE | I_BIT | F_BIT)		@ cambio de modo procesador, irq y fiq = 1 des-habilitado
+ 102 0044 00F029E1 		MSR cpsr, r0					@ devuelve al CPSR lo modificado en r0
+ 103 0048 34D09FE5 	    LDR SP, =__SVC_STACK_END
+ 104              	
+ 105              	@	MRS r0, cpsr					@ Move to general purpose Register a System register
+ 106 004c 1F00C0E3 		BIC r0, r0, #0x1F       			@ bitwise clear, sobre-escribe r0 con una mascara, limpio los primeros 
+ 107 0050 D70080E3 		ORR r0, r0, #(ABT_MODE | I_BIT | F_BIT)		@ cambio de modo procesador, irq y fiq = 1 des-habilitado
+ 108 0054 00F029E1 		MSR cpsr, r0					@ devuelve al CPSR lo modificado en r0
+ 109 0058 30D09FE5 	    LDR SP, =__ABT_STACK_END
+ 110              	
+ 111              	@	MRS r0, cpsr					@ Move to general purpose Register a System register
+ 112 005c 1F00C0E3 		BIC r0, r0, #0x1F       			@ bitwise clear, sobre-escribe r0 con una mascara, limpio los primeros 
+ 113 0060 DB0080E3 		ORR r0, r0, #(UND_MODE | I_BIT | F_BIT)		@ cambio de modo procesador, irq y fiq = 1 des-habilitado
+ 114 0064 00F029E1 		MSR cpsr, r0					@ devuelve al CPSR lo modificado en r0
+ARM GAS  src/reset.s 			page 3
+
+
+ 115 0068 24D09FE5 	    LDR SP, =__UND_STACK_END
+ 116              	
+ 117              	@	MRS r0, cpsr					@ Move to general purpose Register a System register
+ 118 006c 1F00C0E3 		BIC r0, r0, #0x1F       			@ bitwise clear, sobre-escribe r0 con una mascara, limpio los primeros 
+ 119 0070 DF0080E3 		ORR r0, r0, #(SYS_MODE | I_BIT | F_BIT)		@ cambio de modo procesador, irq y fiq = 1 des-habilitado
+ 120 0074 00F029E1 		MSR cpsr, r0					@ devuelve al CPSR lo modificado en r0
+ 121 0078 18D09FE5 	    LDR SP, =__SYS_STACK_END
+ 122              	
+ 123              	/* aca termino de inicializar el stack, 
+ 124              	NOTE! todas las inicializaciones necesarias volcarlas aca: gic, timers, mmu paginacion... etc
+ 125              	y puedo saltar a DRAM donde pondre mi programa "main" */
+ 126              	
+ 127              	
+ 128              		// SETEAMOS EL LR Y PC para empezar a correr desde la zona de memoria RAM, despues de los handlers
+ 129 007c 18E09FE5 		LDR lr,  =__HANDLERS_END_VMA
+ 130 0080 14F09FE5 		LDR pc,  =__HANDLERS_END_VMA
+ 131 0084 00000000 	
+ 131      00000000 
+ 131      00000000 
+ 131      00000000 
+ 131      00000000 
+ARM GAS  src/reset.s 			page 4
+
+
+DEFINED SYMBOLS
+         src/reset.s:4      *ABS*:0000000000000010 USR_MODE
+         src/reset.s:5      *ABS*:0000000000000011 FIQ_MODE
+         src/reset.s:6      *ABS*:0000000000000012 IRQ_MODE
+         src/reset.s:7      *ABS*:0000000000000013 SVC_MODE
+         src/reset.s:8      *ABS*:0000000000000017 ABT_MODE
+         src/reset.s:9      *ABS*:000000000000001b UND_MODE
+         src/reset.s:10     *ABS*:000000000000001f SYS_MODE
+         src/reset.s:12     *ABS*:0000000000000080 I_BIT
+         src/reset.s:13     *ABS*:0000000000000040 F_BIT
+         src/reset.s:74     .reset:0000000000000000 Reset_Handler
+         src/reset.s:76     .reset:0000000000000000 $a
+         src/reset.s:84     .reset:0000000000000018 stack_setup
+         src/reset.s:131    .reset:0000000000000084 $d
+
+UNDEFINED SYMBOLS
+__SVC_STACK_END
+__IRQ_STACK_END
+__FIQ_STACK_END
+__ABT_STACK_END
+__UND_STACK_END
+__SYS_STACK_END
+__HANDLERS_END_VMA

@@ -13,8 +13,9 @@
 
 // Explicitamos símbolos globales para que puedan ser vistos por otros archivos y por el mapa de memoria
 .global Vector_Table		/* #FIXME CAMBIAR vector_reset por vector_table en el .ld */
+.global FIQ_Handler
 
-.code 32			//especificamos que la siguiente seccion es código de 32-bits, no lo he visto en otros ejemplos, quizás sólo es explícito
+@ .code 32			//especificamos que la siguiente seccion es código de 32-bits, no lo he visto en otros ejemplos, quizás sólo es explícito
 
 
 

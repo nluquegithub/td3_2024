@@ -17,7 +17,7 @@ el resultado ordenado. */
 
 
 /*---------------------------------------------------------------------------------------------------------  .kernel bubble_sort */
-.section .kernel, "ax"
+.section .kernel_2, "ax"
 
 
 bubble_sort:                            // ordenar 10 enteros, asumimos que el orden deseado es ascendente
@@ -80,6 +80,18 @@ swap_values:
 
 bubble_end:
         B .
+
+
+memcpy_byte:
+        CMP R2, #0
+        BEQ memcpy_end
+memcpy_loop:
+        LDRB R3, [R1], #1
+        STRB R3, [R0], #1
+        SUBS R2, R2, #1
+        BNE memcpy_loop
+memcpy_end:
+        BX LR //r14
 
 
 

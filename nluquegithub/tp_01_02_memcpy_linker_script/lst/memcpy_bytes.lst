@@ -1,0 +1,90 @@
+ARM GAS  src/memcpy_bytes.s 			page 1
+
+
+   1              	// memcpy_bytes.s 2024.04.09
+   2              	// COPIAR UN BLOQUE DE MEMORIA de a 1 byte memcpy
+   3              	
+   4              	/* Simbolos de direcciones definidas externamente en otro archivo o en linker_script */
+   5              	.extern __KERNEL_START_VMA      // PUNTERO_DESTINO
+   6              	.extern __KERNEL_START_LMA      // PUNTERO_FUENTE
+   7              	.extern __KERNEL_SIZE           // CANT_BYTES a copiar
+   8              	.extern __PILA_SIZE    
+   9              	.extern __BSS_SIZE      
+  10              	
+  11              	/* Explicitamos símbolos globales para que puedan ser vistos por otros archivos y por el mapa de m
+  12              	.global _start
+  13              	
+  14              	/*-------------------------------------------------------------------------------------------------
+  15              	
+  16              	.section .memcpy_asm, "ax"            // Comienzo de seccion, no usamos ".text", que es lo mismo qu
+  17              	                                // "ax" son progbits flags para indicar que la seccion es "a" alloc
+  18              	_start:                         // Simbolo que le indica al linker donde arranca el programa.
+  19              	
+  20 0000 28009FE5 	        LDR R0, =__KERNEL_START_VMA             // PUNTERO_DESTINO
+  21 0004 28109FE5 	        LDR R1, =__KERNEL_START_LMA             // PUNTERO_FUENTE
+  22 0008 28209FE5 	        LDR R2, =__KERNEL_SIZE                  // CANT_BYTES a copiar
+  23              	
+  24 000c 000000EB 	        BL memcpy_byte
+  25 0010 FEFFFFEA 	        B prueba             /* saltar al codigo de la section a ejecutar en VMA */
+  26              	
+  27              	memcpy_byte:
+  28 0014 000052E3 	        CMP R2, #0
+  29 0018 0300000A 	        BEQ memcpy_end
+  30              	memcpy_loop:
+  31 001c 0130D1E4 	        LDRB R3, [R1], #1
+  32 0020 0130C0E4 	        STRB R3, [R0], #1
+  33 0024 012052E2 	        SUBS R2, R2, #1
+  34 0028 FBFFFF1A 	        BNE memcpy_loop
+  35              	memcpy_end:
+  36 002c 1EFF2FE1 	        BX LR //r14
+  37              	
+  38              	
+  39              	/*-------------------------------------------------------------------------------------------------
+  40              	.section .kernel, "ax"
+  41              	
+  42              	prueba:
+  43 0000 08009FE5 	        LDR R0, =variable
+  44 0004 0410A0E3 	        MOV R1, #4
+  45 0008 001080E5 	        STR R1, [R0]
+  46 000c FEFFFFEA 	        B .
+  47              	
+  48              	
+  49              	/*-------------------------------------------------------------------------------------------------
+  50              	.section .bss   // Sección de datos no inicializados.
+  51              	                // "w" -> se puede escribir.
+  52              	variable:
+  53              	        .space =__BSS_SIZE
+  54              	
+  55              	
+  56              	/*-------------------------------------------------------------------------------------------------
+  57              	.section .pila
+ARM GAS  src/memcpy_bytes.s 			page 2
+
+
+  58              	_pila:
+  59              	        .space =__PILA_SIZE        // Reservar una palabra para guardar el factorial.
+  60              	                              /* el .space es como "saltearse" de a bytes, en este caso 4 bytes,
+  61              	                              como reservar espacio para algo,
+  62              	                              que en nuestro ejemplo es como reservar una variable vacia */
+ARM GAS  src/memcpy_bytes.s 			page 3
+
+
+DEFINED SYMBOLS
+  src/memcpy_bytes.s:18     .memcpy_asm:0000000000000000 _start
+  src/memcpy_bytes.s:20     .memcpy_asm:0000000000000000 $a
+  src/memcpy_bytes.s:27     .memcpy_asm:0000000000000014 memcpy_byte
+  src/memcpy_bytes.s:42     .kernel:0000000000000000 prueba
+  src/memcpy_bytes.s:35     .memcpy_asm:000000000000002c memcpy_end
+  src/memcpy_bytes.s:30     .memcpy_asm:000000000000001c memcpy_loop
+  src/memcpy_bytes.s:52     .bss:0000000000000000 variable
+  src/memcpy_bytes.s:43     .kernel:0000000000000000 $a
+  src/memcpy_bytes.s:58     .pila:0000000000000000 _pila
+  src/memcpy_bytes.s:62     .kernel:0000000000000010 $d
+  src/memcpy_bytes.s:62     .memcpy_asm:0000000000000030 $d
+
+UNDEFINED SYMBOLS
+__KERNEL_START_VMA
+__KERNEL_START_LMA
+__KERNEL_SIZE
+__BSS_SIZE
+__PILA_SIZE

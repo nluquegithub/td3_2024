@@ -1,4 +1,5 @@
 target remote localhost:2159
-set logging file gdb_output.txt
-set logging enabled on
+#set logging file gdb_output.txt
+#set logging enabled on
+set history save on
 set $pc=0x70010000
