@@ -1,0 +1,118 @@
+ARM GAS  src/bubble_sort.s 			page 1
+
+
+   1              	// bubble_sort 2024.05.26
+   2              	/*
+   3              	Escribir un codigo en ensamblador capaz de ordenar un array de enteros. 
+   4              	Para ello generar un espacio de 10 enteros inicializados y un espacio de 10 enteros para ubicar 
+   5              	el resultado ordenado. */
+   6              	
+   7              	@ .extern memcpy_bytes
+   8              	
+   9              	/* Explicitamos simbolos globales para que puedan ser vistos por otros archivos y por el mapa de me
+  10              	.global bubble_sort
+  11              	
+  12              	
+  13              	/*-------------------------------------------------------------------------------------------------
+  14              	.section .kernel, "ax"
+  15              	
+  16              	
+  17              	bubble_sort:							// ordenar 10 enteros, asumimos que el orden deseado es ascendente
+  18 0000 8C009FE5 	        LDR R0, =variables_no_init		// puntero donde volcar el array ordenado
+  19 0004 8C109FE5 	        LDR R1, =variables_init 		// puntero a array desordenado
+  20 0008 2820A0E3 	        MOV R2, #40						// cant de elementos a ordenar (*4 para ser words)
+  21 000c FEFFFFEB 	        BL memcpy_bytes					// copiamos al destino aunque este desordenado
+  22              	
+  23              	bubble_start:
+  24 0010 7C009FE5 	        LDR R0, =variables_no_init      // R0 = index_0 del array a ordenar
+  25 0014 041080E2 	        ADD R1, R0, #4                  // R1 = index_1, los siguientes 4 bytes es el siguiente wor
+  26 0018 0920A0E3 	        MOV R2, #9                      // R2 es la cant de pasadas por el array, revisando sus com
+  27 001c 0930A0E3 	        MOV R3, #9                      // R3 es la cant de comparaciones entre 2 elementos interno
+  28 0020 0070A0E3 	        MOV R7, #0      @ R7 sirve para contar y detectar si hubo swap en la pasada
+  29 0024 0080A0E3 	        MOV R8, #0      @ R8 acumulara el total de swaps
+  30              	
+  31              	compare:
+  32 0028 005090E5 	        LDR R5, [R0]                    // cargo lo apuntado a otros registros auxiliares
+  33 002c 006091E5 	        LDR R6, [R1]    
+  34 0030 060055E1 	        CMP R5, R6                      // CMP [R1], [R0] no se puede acceder con el puntero. CMP <
+  35 0034 0E0000CA 	        BGT swap_values                 // *R0 > *R1, hay que cambiarlos de lugar
+  36              	
+  37              	next_in:                                // *R0 < *R1, ok entonces me preparo para la siguiente comp
+  38 0038 013053E2 	        SUBS R3, R3, #1                 // decremento el contador interno
+  39 003c 0200000A 	        BEQ next_out                    // R3 quedo en cero, asi que se completo una pasada por el 
+  40              	next_in_set:                            // R3 no quedo en cero, sigo dentro de la pasada actual
+  41 0040 040080E2 	        ADD R0, R0, #4                  // incrementar el puntero R0, elemento izq de la siguiente 
+  42 0044 041081E2 	        ADD R1, R1, #4                  // incrementar el puntero R1, elemento der de la siguiente 
+  43 0048 F6FFFFEA 	        B compare       
+  44              	
+  45              	next_out:                               // R3 quedo en cero, tengo que prepararme para la siguiente
+  46 004c 000057E3 	        CMP R7, #0              @ si, R7==0 no hubo swaps, y termino una pasada, asumimos que quedo
+  47 0050 0E00000A 	        BEQ bubble_end
+  48 0054 078088E0 	        ADD R8, R8, R7          @ agregamos los R7 swaps de esta pasada que termino, al R8 acumulad
+  49 0058 012052E2 	        SUBS R2, R2, #1                 // decremento el contador externo
+  50 005c 0B00000A 	        BEQ bubble_end                  // R2 quedo en cero, asi que termino todas las pasadas por 
+  51              	next_out_set:                           // R2 no quedo en cero, preparo los valores para la siguien
+  52 0060 2C009FE5 	        LDR R0, =variables_no_init      // recargo R0 con el valor inicial
+  53 0064 041080E2 	        ADD R1, R0, #4                  // recargo R1 con el valor inicial
+  54 0068 0230A0E1 	        MOV R3, R2                      // recargo R3, pero no con el mismo valor inicial, ahora se
+  55 006c 0070A0E3 	        MOV R7, #0
+  56 0070 ECFFFFEA 	        B compare
+  57              	
+ARM GAS  src/bubble_sort.s 			page 2
+
+
+  58              	swap_values:
+  59 0074 0640A0E1 	        MOV R4, R6                      // R4  el aux para pivotear valores del swap
+  60 0078 0560A0E1 	        MOV R6, R5
+  61 007c 0450A0E1 	        MOV R5, R4
+  62              	        /* valores auxiliares cambiados, ahora escribo en la memoria */
+  63 0080 005080E5 	        STR R5, [R0]
+  64 0084 006081E5 	        STR R6, [R1]
+  65 0088 017087E2 	        ADD R7, R7, #1
+  66 008c E9FFFFEA 	        B next_in                       // me preparo para la siguiente comparacion
+  67              	
+  68              	bubble_end:
+  69 0090 FEFFFFEA 	        B .
+  70              	
+  71              	
+  72              	/*-------------------------------------------------------------------------------------------------
+  73              	.section .data   // Seccion de datos inicializados.
+  74              	
+  75              	variables_init:
+  76              	        @ .space =__DATA_SIZE
+  77 0000 01000000 	        .word 1, 3, 2, 8, 9, 10, 5, 6, 4, 7      // 10 elementos enteros inicializados, desordenado
+  77      03000000 
+  77      02000000 
+  77      08000000 
+  77      09000000 
+  78              	/*-------------------------------------------------------------------------------------------------
+  79              	.section .bss   // Seccion de datos no inicializados.
+  80              	
+  81              	variables_no_init:
+  82 0000 00000000 	        .space 40
+  82      00000000 
+  82      00000000 
+  82      00000000 
+  82      00000000 
+  83              	
+ARM GAS  src/bubble_sort.s 			page 3
+
+
+DEFINED SYMBOLS
+   src/bubble_sort.s:17     .kernel:0000000000000000 bubble_sort
+   src/bubble_sort.s:81     .bss:0000000000000000 variables_no_init
+   src/bubble_sort.s:18     .kernel:0000000000000000 $a
+   src/bubble_sort.s:75     .data:0000000000000000 variables_init
+   src/bubble_sort.s:23     .kernel:0000000000000010 bubble_start
+   src/bubble_sort.s:31     .kernel:0000000000000028 compare
+   src/bubble_sort.s:58     .kernel:0000000000000074 swap_values
+   src/bubble_sort.s:37     .kernel:0000000000000038 next_in
+   src/bubble_sort.s:45     .kernel:000000000000004c next_out
+   src/bubble_sort.s:40     .kernel:0000000000000040 next_in_set
+   src/bubble_sort.s:68     .kernel:0000000000000090 bubble_end
+   src/bubble_sort.s:51     .kernel:0000000000000060 next_out_set
+   src/bubble_sort.s:82     .bss:0000000000000000 $d
+   src/bubble_sort.s:83     .kernel:0000000000000094 $d
+
+UNDEFINED SYMBOLS
+memcpy_bytes

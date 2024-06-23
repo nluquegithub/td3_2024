@@ -1,0 +1,63 @@
+ARM GAS  src/kernel.s 			page 1
+
+
+   1              	// kernel.s 
+   2              	
+   3              	/* Definiciones */
+   4              	@ .equ USR_MODE, 0x10
+   5              	
+   6              	
+   7              	/* Symbols de direcciones definidas externamente en otro archivo o en linker_script */
+   8              	@ .extern	__VECTOR_TABLE_BASE
+   9              	
+  10              	
+  11              	/* Explicitamos simbolos globales para que puedan ser vistos por otros archivos y por el mapa de me
+  12              	.global Inicializado
+  13              	
+  14              	.code 32			//especificamos que la siguiente seccion es codigo de 32-bits
+  15              	
+  16              	
+  17              	
+  18              	/*-------------------------------------------------------------------------------------------------
+  19              	
+  20              	.section .kernel_1, "ax"
+  21              	
+  22              	/*	Esta seccion de assembler lleva el codigo a ejecutarse, una vez terminada la secuencia reset, pe
+  23              	Es decir, es esperable que esta seccion se ejecute desde RAM.
+  24              	 */
+  25              	
+  26              	Inicializado:
+  27              	
+  28 0000 FEFFFFEB 		BL	trigger_prefetch_abt_excep		/* -----  solo necesario en ej4 */
+  29 0004 FEFFFFEB 		BL	trigger_und_inst_excep			/* -----  solo necesario en ej4 */
+  30 0008 FEFFFFEB 		BL	trigger_mem_abt_excep			// #BUG no logro disparar la excepcion sin MMU, pendiente de probarlo. 
+  31              	
+  32              		
+  33              		@ /* Llamadas a SVC, cambia a modo supervisor y ejecuta un servicio en modo privilegiado */
+  34 000c 010000EF 		SVC #1	@ ejemplo de un service_call definido
+  35 0010 010000EF 		SVC #1	@ ejemplo de un service_call con handler en C
+  36 0014 050000EF 		SVC #5	@ ejemplo de un service_call NO definido, realiza una tarea por default_case
+  37              	
+  38              	idle:
+  39              		/* Dejo el CPU en modo de alta impedancia, o modo de bajo consumo esperando despertar con una inte
+  40 0018 03F020E3 		WFI		
+  41              		/* NOTE! 'break' en 'IRQ_Handler', 'continue' 1° vez para signal irq, 'continue' 2° vez y llega 
+  42              		en la sesion de debugging, al ejecutar WFI, se demora el tiempo de timer0 (porque es la unica irq 
+  43              		cuando corre 'continue' 1° vez, y con otro 'continue' 2° vez llega al handler */
+  44              		
+  45              		/* Retoma luego de atender la interrupcion que lo desperto */
+  46 001c FDFFFFEA 		B idle
+  47              	
+  48              	
+ARM GAS  src/kernel.s 			page 2
+
+
+DEFINED SYMBOLS
+        src/kernel.s:26     .kernel_1:0000000000000000 Inicializado
+        src/kernel.s:28     .kernel_1:0000000000000000 $a
+        src/kernel.s:38     .kernel_1:0000000000000018 idle
+
+UNDEFINED SYMBOLS
+trigger_prefetch_abt_excep
+trigger_und_inst_excep
+trigger_mem_abt_excep

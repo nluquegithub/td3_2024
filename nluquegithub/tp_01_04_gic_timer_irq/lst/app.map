@@ -1,0 +1,335 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+vector_rom       0x0000000000000000 0x0000000000010000
+public_rom       0x0000000070010000 0x0000000000010000
+public_ram       0x0000000070030000 0x0000000000010000
+public_stack     0x0000000070020000 0x0000000000010000
+microKernel_vma  0x0000000070040000 0x0000000000010000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+                0x0000000000000000                __VECTOR_TABLE_BASE = 0x0
+                0x0000000070010000                __PUBLIC_ROM_INIT = 0x70010000
+                0x0000000070020000                __PUBLIC_STACK_INIT = 0x70020000
+                0x0000000070030000                __PUBLIC_RAM_INIT = 0x70030000
+                0x0000000070040000                __KERNEL_START_VMA = 0x70040000
+                0x0000000000001000                __SYS_STACK_SIZE = 0x1000
+                0x0000000000001000                __IRQ_STACK_SIZE = 0x1000
+                0x0000000000001000                __FIQ_STACK_SIZE = 0x1000
+                0x0000000000001000                __SVC_STACK_SIZE = 0x1000
+                0x0000000000001000                __ABT_STACK_SIZE = 0x1000
+                0x0000000000001000                __UND_STACK_SIZE = 0x1000
+                0x0000000000001000                __GAP_SIZE = 0x1000
+                0x0000000070030000                . = __PUBLIC_RAM_INIT
+
+._startup_out   0x0000000070010000       0x74
+                0x0000000070010000                __STARTUP_START_VMA = .
+ *(._startup)
+ ._startup      0x0000000070010000       0x74 obj/_startup.o
+                0x0000000070010000                _start
+                0x0000000070010074                __STARTUP_END_VMA = .
+
+.vector_table_out
+                0x0000000000000000       0x34 load address 0x0000000070010074
+                0x0000000000000000                __VECTOR_TABLE_START_VMA = .
+ *(.vector_table)
+ .vector_table  0x0000000000000000       0x34 obj/vector_table.o
+                0x0000000000000000                Vector_Table
+                0x000000000000001c                FIQ_Handler
+                0x0000000000000034                __VECTOR_TABLE_END_VMA = .
+                0x0000000000000034                __VECTOR_TABLE_SIZE = SIZEOF (.vector_table_out)
+                0x0000000070010074                __VECTOR_TABLE_START_LMA = LOADADDR (.vector_table_out)
+
+.reset_out      0x0000000070030000      0x194 load address 0x00000000700100a8
+                0x0000000070030000                __RESET_START_VMA = .
+ *(.reset)
+ .reset         0x0000000070030000       0xf0 obj/reset.o
+                0x0000000070030000                Reset_Handler
+ *(.memory_func)
+ .memory_func   0x00000000700300f0       0x48 obj/memory_func.o
+                0x00000000700300f0                clear_bytes
+                0x0000000070030104                memcpy_bytes
+                0x0000000070030120                memcpy_8w
+ *(.gic_init)
+ .gic_init      0x0000000070030138       0x24 obj/gic/gic_c.o
+                0x0000000070030138                gic_init
+ *(.timer_init)
+ .timer_init    0x000000007003015c       0x38 obj/timer/timer_c.o
+                0x000000007003015c                timer_init
+                0x0000000070030194                __RESET_END_VMA = .
+                0x0000000000000194                __RESET_SIZE = SIZEOF (.reset_out)
+                0x00000000700100a8                __RESET_START_LMA = LOADADDR (.reset_out)
+
+.kernel_out     0x0000000070040000      0x2f8 load address 0x000000007001023c
+                0x0000000070040000                . = ALIGN (0x4)
+                0x0000000070040000                __HANDLERS_START_VMA = .
+ *(.exception_handlers*)
+ .exception_handlers
+                0x0000000070040000      0x158 obj/exception_handlers_asm.o
+                0x0000000070040000                SVC_Handler
+                0x000000007004008c                Undefined_Handler
+                0x00000000700400bc                Prefetch_Handler
+                0x00000000700400ec                Data_Abort_Handler
+                0x0000000070040120                IRQ_Handler
+ .exception_handlers
+                0x0000000070040158       0xe4 obj/handlers/exception_handlers.o
+                0x0000000070040158                irq_handler_c
+                0x0000000070040198                timer0_handler_c
+                0x00000000700401b4                und_inst_handler_c
+                0x00000000700401d0                mem_abt_handler_c
+                0x00000000700401ec                prefetch_abt_handler_c
+                0x0000000070040208                svc_handler_c
+                0x0000000070040224                trigger_und_inst_excep
+                0x000000007004022c                trigger_prefetch_abt_excep
+                0x0000000070040234                trigger_mem_abt_excep
+                0x000000007004023c                __HANDLERS_END_VMA = .
+                0x000000007004023c                . = ALIGN (0x4)
+ *(.kernel_1)
+ .kernel_1      0x000000007004023c       0x20 obj/kernel.o
+                0x000000007004023c                Inicializado
+ *(.kernel*)
+ .kernel        0x000000007004025c       0x9c obj/bubble_sort.o
+                0x000000007004025c                bubble_sort
+                0x00000000700402f8                __KERNEL_END_VMA = .
+                0x00000000000002f8                __KERNEL_SIZE = SIZEOF (.kernel_out)
+                0x000000007001023c                __KERNEL_START_LMA = LOADADDR (.kernel_out)
+
+.glue_7         0x00000000700402f8        0x0 load address 0x0000000070010534
+ .glue_7        0x00000000700402f8        0x0 linker stubs
+
+.glue_7t        0x00000000700402f8        0x0 load address 0x0000000070010534
+ .glue_7t       0x00000000700402f8        0x0 linker stubs
+
+.vfp11_veneer   0x00000000700402f8        0x0 load address 0x0000000070010534
+ .vfp11_veneer  0x00000000700402f8        0x0 linker stubs
+
+.v4_bx          0x00000000700402f8        0x0 load address 0x0000000070010534
+ .v4_bx         0x00000000700402f8        0x0 linker stubs
+
+.text           0x00000000700402f8        0x0 load address 0x0000000070010534
+ .text          0x00000000700402f8        0x0 obj/bubble_sort.o
+ .text          0x00000000700402f8        0x0 obj/exception_handlers_asm.o
+ .text          0x00000000700402f8        0x0 obj/kernel.o
+ .text          0x00000000700402f8        0x0 obj/memory_func.o
+ .text          0x00000000700402f8        0x0 obj/reset.o
+ .text          0x00000000700402f8        0x0 obj/vector_table.o
+ .text          0x00000000700402f8        0x0 obj/_startup.o
+ .text          0x00000000700402f8        0x0 obj/gic/gic_c.o
+ .text          0x00000000700402f8        0x0 obj/handlers/exception_handlers.o
+ .text          0x00000000700402f8        0x0 obj/timer/timer_c.o
+
+.iplt           0x00000000700402f8        0x0 load address 0x0000000070010534
+ .iplt          0x00000000700402f8        0x0 obj/bubble_sort.o
+
+.igot.plt       0x00000000700402f8        0x0 load address 0x0000000070010534
+ .igot.plt      0x00000000700402f8        0x0 obj/bubble_sort.o
+
+.rel.dyn        0x00000000700402f8        0x0 load address 0x0000000070010534
+ .rel.iplt      0x00000000700402f8        0x0 obj/bubble_sort.o
+
+.data_out       0x0000000070030194       0x3c
+                0x0000000070030194                . = ALIGN (0x4)
+                0x0000000070030194                __data_start__ = .
+ *(.data*)
+ .data          0x0000000070030194       0x28 obj/bubble_sort.o
+ .data          0x00000000700301bc        0x0 obj/exception_handlers_asm.o
+ .data          0x00000000700301bc        0x0 obj/kernel.o
+ .data          0x00000000700301bc        0x0 obj/memory_func.o
+ .data          0x00000000700301bc        0x0 obj/reset.o
+ .data          0x00000000700301bc        0x0 obj/vector_table.o
+ .data          0x00000000700301bc        0x0 obj/_startup.o
+ .data          0x00000000700301bc        0x0 obj/gic/gic_c.o
+ .data          0x00000000700301bc       0x14 obj/handlers/exception_handlers.o
+ .data          0x00000000700301d0        0x0 obj/timer/timer_c.o
+                0x00000000700301d0                __data_end__ = .
+                0x000000000000003c                __DATA_SIZE = SIZEOF (.data_out)
+                0x0000000070030194                __DATA_START_LMA = LOADADDR (.data_out)
+
+.bss_out        0x00000000700301d0       0x28
+                0x00000000700301d0                . = ALIGN (0x4)
+                0x00000000700301d0                __bss_start__ = .
+ *(.bss*)
+ .bss           0x00000000700301d0       0x28 obj/bubble_sort.o
+ .bss           0x00000000700301f8        0x0 obj/exception_handlers_asm.o
+ .bss           0x00000000700301f8        0x0 obj/kernel.o
+ .bss           0x00000000700301f8        0x0 obj/memory_func.o
+ .bss           0x00000000700301f8        0x0 obj/reset.o
+ .bss           0x00000000700301f8        0x0 obj/vector_table.o
+ .bss           0x00000000700301f8        0x0 obj/_startup.o
+ .bss           0x00000000700301f8        0x0 obj/gic/gic_c.o
+ .bss           0x00000000700301f8        0x0 obj/handlers/exception_handlers.o
+ .bss           0x00000000700301f8        0x0 obj/timer/timer_c.o
+                0x00000000700301f8                __bss_end__ = .
+                0x0000000000000028                __BSS_SIZE = SIZEOF (.bss_out)
+                0x00000000700301d0                __BSS_START_LMA = LOADADDR (.bss_out)
+
+.stacks_out     0x0000000070020000     0xc000
+                0x0000000070020000                . = ALIGN (0x4)
+                0x0000000070020000                __ARM_STACKS_START_VMA = .
+                0x0000000070020000                __SYS_STACK_START = .
+                0x0000000070021000                . = (. + __SYS_STACK_SIZE)
+ *fill*         0x0000000070020000     0x1000 
+                0x0000000070021000                __SYS_STACK_END = .
+                0x0000000070022000                . = (. + __GAP_SIZE)
+ *fill*         0x0000000070021000     0x1000 
+                0x0000000070022000                __IRQ_STACK_START = .
+                0x0000000070023000                . = (. + __IRQ_STACK_SIZE)
+ *fill*         0x0000000070022000     0x1000 
+                0x0000000070023000                __IRQ_STACK_END = .
+                0x0000000070024000                . = (. + __GAP_SIZE)
+ *fill*         0x0000000070023000     0x1000 
+                0x0000000070024000                __FIQ_STACK_START = .
+                0x0000000070025000                . = (. + __FIQ_STACK_SIZE)
+ *fill*         0x0000000070024000     0x1000 
+                0x0000000070025000                __FIQ_STACK_END = .
+                0x0000000070026000                . = (. + __GAP_SIZE)
+ *fill*         0x0000000070025000     0x1000 
+                0x0000000070026000                __SVC_STACK_START = .
+                0x0000000070027000                . = (. + __SVC_STACK_SIZE)
+ *fill*         0x0000000070026000     0x1000 
+                0x0000000070027000                __SVC_STACK_END = .
+                0x0000000070028000                . = (. + __GAP_SIZE)
+ *fill*         0x0000000070027000     0x1000 
+                0x0000000070028000                __ABT_STACK_START = .
+                0x0000000070029000                . = (. + __ABT_STACK_SIZE)
+ *fill*         0x0000000070028000     0x1000 
+                0x0000000070029000                __ABT_STACK_END = .
+                0x000000007002a000                . = (. + __GAP_SIZE)
+ *fill*         0x0000000070029000     0x1000 
+                0x000000007002a000                __UND_STACK_START = .
+                0x000000007002b000                . = (. + __UND_STACK_SIZE)
+ *fill*         0x000000007002a000     0x1000 
+                0x000000007002b000                __UND_STACK_END = .
+                0x000000007002c000                . = (. + __GAP_SIZE)
+ *fill*         0x000000007002b000     0x1000 
+                0x000000007002c000                __ARM_STACKS_END_VMA = .
+                0x000000000000c000                __ARM_STACKS_SIZE = SIZEOF (.stacks_out)
+                0x0000000070020000                __ARM_STACKS_START_LMA = LOADADDR (.stacks_out)
+LOAD obj/bubble_sort.o
+LOAD obj/exception_handlers_asm.o
+LOAD obj/kernel.o
+LOAD obj/memory_func.o
+LOAD obj/reset.o
+LOAD obj/vector_table.o
+LOAD obj/_startup.o
+LOAD obj/gic/gic_c.o
+LOAD obj/handlers/exception_handlers.o
+LOAD obj/timer/timer_c.o
+OUTPUT(bin/app.elf elf32-littlearm)
+
+.ARM.attributes
+                0x0000000000000000       0x2f
+ .ARM.attributes
+                0x0000000000000000       0x14 obj/bubble_sort.o
+ .ARM.attributes
+                0x0000000000000014       0x16 obj/exception_handlers_asm.o
+ .ARM.attributes
+                0x000000000000002a       0x14 obj/kernel.o
+ .ARM.attributes
+                0x000000000000003e       0x16 obj/memory_func.o
+ .ARM.attributes
+                0x0000000000000054       0x16 obj/reset.o
+ .ARM.attributes
+                0x000000000000006a       0x14 obj/vector_table.o
+ .ARM.attributes
+                0x000000000000007e       0x14 obj/_startup.o
+ .ARM.attributes
+                0x0000000000000092       0x33 obj/gic/gic_c.o
+ .ARM.attributes
+                0x00000000000000c5       0x33 obj/handlers/exception_handlers.o
+ .ARM.attributes
+                0x00000000000000f8       0x33 obj/timer/timer_c.o
+
+.comment        0x0000000000000000       0x24
+ .comment       0x0000000000000000       0x24 obj/gic/gic_c.o
+                                         0x25 (size before relaxing)
+ .comment       0x0000000000000024       0x25 obj/handlers/exception_handlers.o
+ .comment       0x0000000000000024       0x25 obj/timer/timer_c.o
+
+.note.GNU-stack
+                0x0000000000000000        0x0
+ .note.GNU-stack
+                0x0000000000000000        0x0 obj/gic/gic_c.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 obj/handlers/exception_handlers.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 obj/timer/timer_c.o
+
+.debug_line     0x0000000000000000      0x5d9
+ .debug_line    0x0000000000000000       0x69 obj/bubble_sort.o
+ .debug_line    0x0000000000000069       0xa7 obj/exception_handlers_asm.o
+ .debug_line    0x0000000000000110       0x43 obj/kernel.o
+ .debug_line    0x0000000000000153       0x56 obj/memory_func.o
+ .debug_line    0x00000000000001a9       0x80 obj/reset.o
+ .debug_line    0x0000000000000229       0x48 obj/vector_table.o
+ .debug_line    0x0000000000000271       0x5d obj/_startup.o
+ .debug_line    0x00000000000002ce       0xd6 obj/gic/gic_c.o
+ .debug_line    0x00000000000003a4      0x158 obj/handlers/exception_handlers.o
+ .debug_line    0x00000000000004fc       0xdd obj/timer/timer_c.o
+
+.debug_info     0x0000000000000000      0xc43
+ .debug_info    0x0000000000000000       0x79 obj/bubble_sort.o
+ .debug_info    0x0000000000000079       0x84 obj/exception_handlers_asm.o
+ .debug_info    0x00000000000000fd       0x74 obj/kernel.o
+ .debug_info    0x0000000000000171       0x79 obj/memory_func.o
+ .debug_info    0x00000000000001ea       0x73 obj/reset.o
+ .debug_info    0x000000000000025d       0x7a obj/vector_table.o
+ .debug_info    0x00000000000002d7       0x76 obj/_startup.o
+ .debug_info    0x000000000000034d      0x301 obj/gic/gic_c.o
+ .debug_info    0x000000000000064e      0x3c1 obj/handlers/exception_handlers.o
+ .debug_info    0x0000000000000a0f      0x234 obj/timer/timer_c.o
+
+.debug_abbrev   0x0000000000000000      0x375
+ .debug_abbrev  0x0000000000000000       0x14 obj/bubble_sort.o
+ .debug_abbrev  0x0000000000000014       0x14 obj/exception_handlers_asm.o
+ .debug_abbrev  0x0000000000000028       0x14 obj/kernel.o
+ .debug_abbrev  0x000000000000003c       0x14 obj/memory_func.o
+ .debug_abbrev  0x0000000000000050       0x14 obj/reset.o
+ .debug_abbrev  0x0000000000000064       0x14 obj/vector_table.o
+ .debug_abbrev  0x0000000000000078       0x14 obj/_startup.o
+ .debug_abbrev  0x000000000000008c       0xd9 obj/gic/gic_c.o
+ .debug_abbrev  0x0000000000000165      0x139 obj/handlers/exception_handlers.o
+ .debug_abbrev  0x000000000000029e       0xd7 obj/timer/timer_c.o
+
+.debug_aranges  0x0000000000000000      0x180
+ .debug_aranges
+                0x0000000000000000       0x20 obj/bubble_sort.o
+ .debug_aranges
+                0x0000000000000020       0x20 obj/exception_handlers_asm.o
+ .debug_aranges
+                0x0000000000000040       0x20 obj/kernel.o
+ .debug_aranges
+                0x0000000000000060       0x20 obj/memory_func.o
+ .debug_aranges
+                0x0000000000000080       0x20 obj/reset.o
+ .debug_aranges
+                0x00000000000000a0       0x20 obj/vector_table.o
+ .debug_aranges
+                0x00000000000000c0       0x20 obj/_startup.o
+ .debug_aranges
+                0x00000000000000e0       0x20 obj/gic/gic_c.o
+ .debug_aranges
+                0x0000000000000100       0x60 obj/handlers/exception_handlers.o
+ .debug_aranges
+                0x0000000000000160       0x20 obj/timer/timer_c.o
+
+.debug_ranges   0x0000000000000000       0x90
+ .debug_ranges  0x0000000000000000       0x10 obj/gic/gic_c.o
+ .debug_ranges  0x0000000000000010       0x70 obj/handlers/exception_handlers.o
+ .debug_ranges  0x0000000000000080       0x10 obj/timer/timer_c.o
+
+.debug_str      0x0000000000000000      0x450
+ .debug_str     0x0000000000000000      0x219 obj/gic/gic_c.o
+                                        0x252 (size before relaxing)
+ .debug_str     0x0000000000000219      0x1ff obj/handlers/exception_handlers.o
+                                        0x390 (size before relaxing)
+ .debug_str     0x0000000000000418       0x38 obj/timer/timer_c.o
+                                        0x280 (size before relaxing)
+
+.debug_frame    0x0000000000000000      0x128
+ .debug_frame   0x0000000000000000       0x20 obj/gic/gic_c.o
+ .debug_frame   0x0000000000000020       0xe8 obj/handlers/exception_handlers.o
+ .debug_frame   0x0000000000000108       0x20 obj/timer/timer_c.o

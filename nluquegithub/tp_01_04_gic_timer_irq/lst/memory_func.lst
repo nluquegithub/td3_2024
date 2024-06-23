@@ -1,0 +1,93 @@
+ARM GAS  src/memory_func.s 			page 1
+
+
+   1              	// clear_bytes.s
+   2              	
+   3              	/* Symbols de direcciones definidas externamente en otro archivo o en linker_script */
+   4              	@ .extern	__bss_start__
+   5              	@ .extern	__bss_end__
+   6              	
+   7              	
+   8              	/* Explicitamos simbolos globales para que puedan ser vistos por otros archivos y por el mapa de me
+   9              	.global clear_bytes
+  10              	.global memcpy_bytes
+  11              	.global memcpy_8w
+  12              	
+  13              	/*-------------------------------------------------------------------------------------------------
+  14              	
+  15              	.section .memory_func, "ax"            
+  16              	
+  17              	clear_bytes:
+  18              	
+  19              	/*---  como deben precargarse los registros antes de llamar esta funcion */
+  20              			@ LDR r0, =0x00000000	    @ valor 0 zero para borrar, pero si esta funcion fuera set
+  21              			@ LDR r1, =__bss_start__	@ _dir_inicio_data_borrar
+  22              			@ LDR r2, =__bss_end__		@ _dir_final_data_borrar
+  23              			@ BL clear_bytes
+  24              	
+  25              	clear_loop:
+  26 0000 020051E1 		CMP r1, r2                  @ comparamos si el indice es menor que el final
+  27 0004 0100000A 		BEQ clear_end				@ si fueran iguales las dir inicio y fin, no hay nada que hacer, salgo
+  28 0008 040081B4 		STRLT r0, [r1], #4          @ si es menor, debemos grabarlo y aumentar el puntero r1
+  29 000c FBFFFFBA 		BLT clear_loop              @ si es menor, volvemos al loop para volver a comparar
+  30              	clear_end:
+  31 0010 0EF0A0E1 		MOV	pc, lr                  @ si no es menor, termino de recorrer el indice, volvemos al branch wi
+  32              	
+  33              	
+  34              	
+  35              	/*---  como deben precargarse los registros antes de llamar esta funcion */
+  36              	        @ LDR R0, =variables_no_init		// puntero donde volcar el array ordenado			@ _dir_inicio_dat
+  37              	        @ LDR R1, =variables_init 			// puntero a array desordenado						@ _dir_inicio_data_pegar
+  38              	        @ MOV R2, #40						// cant de elementos a ordenar (*4 para ser words)	@ _largo_data_copiar 
+  39              	        @ BL memcpy_bytes					// copiamos al destino aunque este desordenado
+  40              	
+  41              	memcpy_bytes:
+  42 0014 000052E3 	        CMP R2, #0
+  43 0018 0300000A 	        BEQ memcpy_end
+  44              	memcpy_loop:
+  45 001c 0130D1E4 	        LDRB R3, [R1], #1
+  46 0020 0130C0E4 	        STRB R3, [R0], #1
+  47 0024 012052E2 	        SUBS R2, R2, #1
+  48 0028 FBFFFF1A 	        BNE memcpy_loop
+  49              	memcpy_end:
+  50 002c 1EFF2FE1 	        BX LR //r14
+  51              	
+  52              	
+  53              	
+  54              	
+  55              	
+  56              	/*---  como deben precargarse los registros antes de llamar esta funcion */
+  57              			@ LDR r0, =__KERNEL_START_LMA		@ _dir_inicio_data_copiar
+ARM GAS  src/memory_func.s 			page 2
+
+
+  58              			@ LDR r1, =__KERNEL_START_VMA		@ _dir_inicio_data_pegar
+  59              			@ LDR r2, =__KERNEL_SIZE			@ _largo_data_copiar ; inicio + largo = _final_data_copiar
+  60              			@ BL	memcpy_rom
+  61              	
+  62              	memcpy_8w:
+  63              								    @ tenemos que tener previamente los punteros _inicio_data_copiar en r0, y _inicio_data_p
+  64              								    @ asi el bloque de codigo en r0 = _inicio_data_copiar, se copiara en r1 = _inicio_data_p
+  65 0030 002082E0 		ADD r2, r2, r0 			    @  r2 = _largo_data_copiar + _inicio_data_copiar
+  66              		copy_8w:
+  67 0034 F807B0E8 			LDMIA	r0!, {r3 - r10}	@ load memory increment after. carga lo que hay desde r0 inclusive a r3 , l
+  68              									@ hasta cargar en r10, = desde la pos r0 cargar 8*4bytes, o sea lo que esta en r0 y los sig
+  69 0038 F807A1E8 			STMIA	r1!, {r3 - r10}	@ store memory increment after, al final de todo en r0 quedo el ultimo valo
+  70 003c 020050E1 			CMP	r0, r2 				@ compara la ultima direccion de copia que quedo en r0, contra el contenido de r2 
+  71 0040 FBFFFFDA 			BLE	copy_8w
+  72 0044 0EF0A0E1 		MOV	pc, lr                  @ volvemos al branch with link BL que lo llamo
+ARM GAS  src/memory_func.s 			page 3
+
+
+DEFINED SYMBOLS
+   src/memory_func.s:17     .memory_func:0000000000000000 clear_bytes
+   src/memory_func.s:41     .memory_func:0000000000000014 memcpy_bytes
+   src/memory_func.s:62     .memory_func:0000000000000030 memcpy_8w
+   src/memory_func.s:25     .memory_func:0000000000000000 clear_loop
+   src/memory_func.s:26     .memory_func:0000000000000000 $a
+   src/memory_func.s:30     .memory_func:0000000000000010 clear_end
+   src/memory_func.s:49     .memory_func:000000000000002c memcpy_end
+   src/memory_func.s:44     .memory_func:000000000000001c memcpy_loop
+   src/memory_func.s:66     .memory_func:0000000000000034 copy_8w
+
+NO UNDEFINED SYMBOLS

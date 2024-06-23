@@ -1,0 +1,67 @@
+ARM GAS  src/vector_table.s 			page 1
+
+
+   1              	// vector_table.s
+   2              	/* Defino etiquetas para luego hacer los cambios de modo */
+   3              	@ .equ USR_MODE, 0x10
+   4              	
+   5              	/* Symbols de direcciones definidas externamente en otro archivo o en linker_script */
+   6              	@ .extern	__KERNEL_VMA
+   7              	.extern Reset_Handler
+   8              	.extern Undefined_Handler
+   9              	.extern SVC_Handler
+  10              	.extern Prefetch_Handler
+  11              	.extern Abort_Handler
+  12              	.extern IRQ_Handler
+  13              	
+  14              	// Explicitamos símbolos globales para que puedan ser vistos por otros archivos y por el mapa de m
+  15              	.global Vector_Table
+  16              	.global FIQ_Handler
+  17              	
+  18              	@ .code 32			//especificamos que la siguiente seccion es código de 32-bits, no lo he visto en otro
+  19              	
+  20              	
+  21              	
+  22              	/*-------------------------------------------------------------------------------------------------
+  23              	.section .vector_table, "ax"			//comienzo de sección, no usamos ".text", que es lo mismo que decir
+  24              	
+  25              	Vector_Table:
+  26 0000 14F09FE5 					LDR pc, Reset_Addr
+  27 0004 14F09FE5 					LDR pc, Undefined_Addr
+  28 0008 14F09FE5 					LDR pc, SVC_Addr
+  29 000c 14F09FE5 					LDR pc, Prefetch_Addr
+  30 0010 14F09FE5 					LDR pc, Data_Abort_Addr
+  31 0014 0000A0E1 					NOP							@ Reserved vector
+  32 0018 10F09FE5 					LDR pc, IRQ_Addr
+  33              		FIQ_Handler:
+  34              					   // FIQ handler code - max 4kB in size
+  35              	
+  36 001c 00000000 	Reset_Addr:	  		.long Reset_Handler
+  37 0020 00000000 	Undefined_Addr:		.long Undefined_Handler
+  38 0024 00000000 	SVC_Addr:			.long SVC_Handler
+  39 0028 00000000 	Prefetch_Addr:		.long Prefetch_Handler
+  40 002c 00000000 	Data_Abort_Addr:	.long Data_Abort_Handler
+  41 0030 00000000 	IRQ_Addr:			.long IRQ_Handler
+  42              	
+ARM GAS  src/vector_table.s 			page 2
+
+
+DEFINED SYMBOLS
+  src/vector_table.s:25     .vector_table:0000000000000000 Vector_Table
+  src/vector_table.s:33     .vector_table:000000000000001c FIQ_Handler
+  src/vector_table.s:36     .vector_table:000000000000001c Reset_Addr
+  src/vector_table.s:26     .vector_table:0000000000000000 $a
+  src/vector_table.s:37     .vector_table:0000000000000020 Undefined_Addr
+  src/vector_table.s:38     .vector_table:0000000000000024 SVC_Addr
+  src/vector_table.s:39     .vector_table:0000000000000028 Prefetch_Addr
+  src/vector_table.s:40     .vector_table:000000000000002c Data_Abort_Addr
+  src/vector_table.s:41     .vector_table:0000000000000030 IRQ_Addr
+  src/vector_table.s:36     .vector_table:000000000000001c $d
+
+UNDEFINED SYMBOLS
+Reset_Handler
+Undefined_Handler
+SVC_Handler
+Prefetch_Handler
+Data_Abort_Handler
+IRQ_Handler

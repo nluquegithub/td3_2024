@@ -1,0 +1,308 @@
+ARM GAS  src/exception_handlers_asm.s 			page 1
+
+
+   1              	// exception_handlers_asm.s 2024-06-21
+   2              	
+   3              	/* 
+   4              	- En este archivo esta el codigo de atencion basico para las excepciones (y tambien irq).
+   5              	- Son los pasos escenciales para recalcular el retorno y guardar los registros por i hubiera re-ent
+   6              	- El codigo especifico que debe atender cada handler puede estar en otro archivo en C, o en asm.
+   7              	
+   8              	Referencias:
+   9              	https://developer.arm.com/documentation/dui0203/j/handling-processor-exceptions/armv6-and-earlier--
+  10              	
+  11              	
+  12              	Direccion de retorno. Valores del Link Register
+  13              	Excepcion					Direccion	Uso
+  14              	Reset						-			Es un Reset. No esta definido
+  15              	Data abort					lr - 8		Apunta a la instruccion que causo el Abort
+  16              	Fast interrupt request		lr - 4		Retorna a la instruccion siguiente a la que recibio FIQ
+  17              	Interrupt request			lr - 4		Retorna a la instruccion siguiente a la que recibio IRQ
+  18              	Prefetch abort				lr - 4		Retorna a la instruccion que recibio Prefetch Abort
+  19              	Software interrupt			lr			Regresa a la instruccion siguiente a SWI
+  20              	Undefined instruction		lr			Regresa a la instruccion siguiente a la no definida
+  21              	
+  22              	Alejandro Furfaro ARMv7 - Gestion de Interrupciones 20 de julio de 2020 pag 27/64
+  23              	*/
+  24              	
+  25              	/* Mascaras para modo Thumb o ARM bit (5) del CPSR/SPSR. */
+  26              	.equ T_BIT,	0x20
+  27              	
+  28              	/* Explicitamos simbolos globales para que puedan ser vistos por otros archivos y por el mapa de me
+  29              	.global SVC_Handler
+  30              	
+  31              	.global Undefined_Handler
+  32              	.global Prefetch_Handler
+  33              	.global Data_Abort_Handler
+  34              	.global IRQ_Handler
+  35              	
+  36              	
+  37              	.section .exception_handlers, "ax"
+  38              	
+  39              	/*-------------------------------------------------------------------------------------------------
+  40              	/*
+  41              	- SVC se genera cuando se ejecuta la Instruccion SWI o SVC (SWI sigue implementada pero es consider
+  42              	- Esta instruccion se ejecuta en codigo Modo User. Al ingresar al handler, el procesador establece 
+  43              	- Alejandro Furfaro ARMv7 - Gestion de Interrupciones 20 de julio de 2020 pag 25/64
+  44              	*/
+  45              	
+  46              	SVC_Handler:
+  47              		/* Guardar el estado del contexto si es necesario */  /*------------------------------ PREAMBULO (
+  48              			/* En caso de un nuevo SVC call, se perderian si no lo guardamos en la pila */
+  49 0000 0F502DE9 		STMFD   sp!, {r0-r3, r12, lr}	// Store registers
+  50              						// Push onto a Full Descending Stack
+  51              	
+  52              			/* Obtener puntero a los parametros que sean necesarios, guardados por el usuario en el stack */
+  53 0004 0D10A0E1 		MOV	 r1, sp				 // Set pointer to parameters
+  54 0008 00004FE1 		MRS	 r0, spsr			   // Get spsr
+  55 000c 09002DE9 		STMFD   sp!, {r0, r3}		  // Store spsr onto stack and another register to maintain 8-byte-aligned 
+  56              									   // Only required for nested SVCs.
+  57              	
+ARM GAS  src/exception_handlers_asm.s 			page 2
+
+
+  58              		/* Mascara para determinar en que modo estaba antes de SVC */
+  59 0010 200010E3 		TST	 r0, #T_BIT			 // Occurred in Thumb state?
+  60              	
+  61              		/* Obtener el numero de SVC que esta embebido en la instruccion.*/
+  62              			/* Por eso buscamos la direccion en que quedo el anterior pc (o sea el lr) y...*/
+  63 0014 B2005E11 		LDRNEH  r0, [lr,#-2]		   // Yes: Load halfword and...	/*  -2 posiciones es la instruccion, en modo
+  64 0018 FF0CC013 		BICNE   r0, r0, #0xFF00		// ...extract comment field	/*		filtramos el SVC_number */
+  65 001c 04001E05 		LDREQ   r0, [lr,#-4]		   // Load word and...		/*  -4 posiciones es la instruccion, en modo ARM */
+  66 0020 FF04C003 		BICEQ   r0, r0, #0xFF000000	// ...extract comment field	/*		filtramos el SVC_number */
+  67              	
+  68              		// r0 now contains SVC_number
+  69              		// r1 now contains pointer to stacked registers	/*------------------------------------ PREAMBULO (
+  70              	
+  71              		// Implemento una JUMP_TABLE para atender al service_call segun el SVC_number.
+  72              				/* 	Es similar a lograr un SWITCH_CASE pero cada CASE definido tiene que ser un valor consecutiv
+  73              					Todos los casos NO definidos se atenderan por default_case. Es mas rapido la ejecucion que un s
+  74              					hace menos comprobaciones y salta directamente a la etiqueta que debe atender.*/
+  75 0024 0001A0E1 		LSL r0, r0, #2		@ Multiplica el valor por 4 para obtener el desplazamiento correcto
+  76 0028 58209FE5 		LDR	r2, rango_jump_table	@ rango de tabla permitida para SVC_number saltos de jump_table
+  77 002c 020050E1 		CMP r0, r2			@ Compara el offset de salto r0 con el rango permitido en la jump_table
+  78 0030 080000AA 		BGE default_case	@ Salta a default_case si la dir de salto es >= a default, o sea que el SVC_numbe
+  79 0034 18219FE5 		LDR	r2, =jump_table	@ Cargamos en r2 la dir base para el salto (coincide con case_0 )
+  80 0038 000092E7 		LDR r0, [r2, r0]	@ Carga la direccion de salto correspondiente de la jump table
+  81 003c 10FF2FE1 		BX r0		   	@ Salta a la direccion de salto cargada si tenemos identificado un case correcto
+  82              	
+  83              		case_0:					@ Codigo para case 0
+  84 0040 060000EA 			b exit
+  85              	
+  86              		case_1:					@ Codigo para case 1
+  87 0044 34409FE5 			LDR r4, str1	// carga r4 con la var str1
+  88 0048 040000EA 			b exit
+  89              	
+  90              		case_2:					@ Codigo para case 2
+  91 004c FEFFFFEB 			BL svc_handler_c
+  92 0050 020000EA 			b exit
+  93              	
+  94              		case_3:					@ Codigo para case 3
+  95 0054 010000EA 			b exit
+  96              	
+  97              		default_case:			@ Codigo para casos no definidos
+  98 0058 24409FE5 			LDR r4, str2	// carga r4 con la var str2
+  99 005c FFFFFFEA 			b exit
+ 100              	
+ 101              		exit:					@ Codigo de salida en comun a todos los case, de ser necesario
+ 102              	
+ 103              														/*------------------------------------ EPILOGO (devolver contexto)*/
+ 104 0060 0900BDE8 		LDMFD   sp!, {r0, r3}		  // Get spsr from stack
+ 105 0064 00F069E1 		MSR	 spsr, r0			   // Restore spsr
+ 106 0068 0F90FDE8 		LDMFD   sp!, {r0-r3, r12, pc}^ // Restore registers and return
+ 107              										// Pop from a Full Descending Stack
+ 108              		/*The ^ qualifier specifies that the CPSR is restored from the SPSR. It must be used only from a p
+ 109              														/*------------------------------------ EPILOGO (contexto devuelto)*/
+ 110              	
+ 111              		jump_table:
+ 112 006c 40000000 			case_0_addr:		.word case_0		 @ Direccion de la etiqueta case_0
+ 113 0070 44000000 			case_1_addr:		.word case_1		 @ Direccion de la etiqueta case_1
+ 114 0074 4C000000 			case_2_addr:		.word case_2		 @ Direccion de la etiqueta case_2
+ARM GAS  src/exception_handlers_asm.s 			page 3
+
+
+ 115 0078 54000000 			case_3_addr:		.word case_3		 @ Direccion de la etiqueta case_3
+ 116 007c 58000000 			default_case_addr:	.word default_case   @ Direccion de salto por defecto
+ 117              	
+ 118 0080 01AACCAA 		str1: 	.word 	0xAACCAA01
+ 119 0084 05AACCAA 		str2: 	.word 	0xAACCAA05
+ 120              	
+ 121 0088 10000000 		rango_jump_table:		.word (default_case_addr - case_0_addr) @ para evaluar si el salto esta permiti
+ 122              	
+ 123              	
+ 124              	
+ 125              	
+ 126              	
+ 127              	/* Implementar excepciones. Cada excepcion se debe generar por una funcion especifica.
+ 128              	[x] INV Invalid instructions and trap exceptions 	-> Prefetch_Handler
+ 129              	[x] MEM Memory accesses								-> Data_Abort_Handler		// #BUG no logro disparar la excepcion sin MM
+ 130              	[ ] probar IRQ por el timer
+ 131              	 */
+ 132              	
+ 133              	/*-------------------------------------------------------------------------------------------------
+ 134              	/*
+ 135              	- 'Undefined Instruction' se genera en la fase de ejecucion del pipe-line cuando la instruccion no 
+ 136              	coprocesadores disponibles, y si los hay tampoco corresponde a sus instrucciones.
+ 137              	- 'Undefined Instruction' y SWI nunca pueden por razones obvias ocurrir al mismo tiempo. Por eso ti
+ 138              	Alejandro Furfaro ARMv7 - Gestion de Interrupciones 20 de julio de 2020 pag 26/64
+ 139              	 */
+ 140              	
+ 141              	Undefined_Handler:
+ 142 008c 80000CF1 		CPSID i 					@ deshabilita las interrupciones IRQ
+ 143              									@ no recalcula LR, Regresa a la instruccion siguiente a la no definida
+ 144 0090 FF5F2DE9 		STMFD	sp!, {r0-r12,lr}	@ PUSH a la pila los registros
+ 145 0094 0D70A0E1 		MOV		r7,sp				@ copia el stack pointer actual a r7
+ 146 0098 00804FE1 		MRS		r8, spsr			@ copia el actual SPSR en r8
+ 147 009c 80012DE9 		STMFD	sp!, {r7,r8}		@ PUSH a la pila el SP y SPSR para resguardo de contexto
+ 148              	
+ 149 00a0 0D00A0E1 		MOV		r0,sp   			@ colocamos en r0 el stack pointer, para cumplir con la ABI, si necesitaramos algo
+ 150 00a4 FEFFFFEB 		BL	und_inst_handler_c		
+ 151              		
+ 152 00a8 8001BDE8 		LDMFD	sp!, {r7,r8}		@ POP de la pila para restaurar contexto previo a la atencion de IRQ
+ 153 00ac 08F069E1 		MSR		spsr, r8
+ 154 00b0 07D0A0E1 		MOV		sp, r7
+ 155 00b4 800008F1 		CPSIE i						@ habilita las interrupciones IRQ
+ 156 00b8 FF9FFDE8 		LDMFD	sp!, {r0-r12, pc}^	@ POP de los demas registros y salida de este IRQ_Handler
+ 157              	
+ 158              		/*The ^ qualifier specifies that the CPSR is restored from the SPSR. It must be used only from a p
+ 159              	
+ 160              	
+ 161              	
+ 162              	
+ 163              	/*-------------------------------------------------------------------------------------------------
+ 164              	/*
+ 165              	- Se genera Prefetch Abort cuando se intenta un Fetch de una instruccion en una direccion invalida 
+ 166              	- Esta excepcion se genera cuando la instruccion responsable del Fallo ingresa a la etapa de ejecuc
+ 167              	  siempre que no se hayan activado en el transcurso FIQ, y/o IRQ (recordar el caracter asincronico 
+ 168              	- Si esto hubiese ocurrido se atendera la interrupcion o ambas interrupciones (segun corresponda) e
+ 169              	- Cuando se vectoriza Prefetch Abort, se deshabilita IRQ. 
+ 170              	- El handler de Prefetch Abort, se suspende si ingresa FIQ, o IRQ, si se habilito en algun momento 
+ 171              	Alejandro FurfaroARMv7 - Gestion de Interrupciones20 de julio de 2020 pag 24/64
+ARM GAS  src/exception_handlers_asm.s 			page 4
+
+
+ 172              	*/
+ 173              	
+ 174              	Prefetch_Handler:
+ 175 00bc 80000CF1 		CPSID i 					@ deshabilita las interrupciones IRQ
+ 176              	/*generalmente se haria la resta, con el handler corregimos el problema que genero la excepcion, 
+ 177              	y luego volvemos al mismo punto antes de exception para poder ejecutar lo que no se podia. */
+ 178              		@ SUB	lr,lr, #4			@ resta 4 que en LR Retorne a la instruccion que recibio Prefetch Abort
+ 179              	/* #HACK pero en la consigna, solo debo escribir en r10, y luego continuar con la ejecucion normal,
+ 180              	
+ 181 00c0 FF5F2DE9 		STMFD	sp!, {r0-r12,lr}	@ PUSH a la pila los registros
+ 182 00c4 0D70A0E1 		MOV		r7,sp				@ copia el stack pointer actual a r7
+ 183 00c8 00804FE1 		MRS		r8, spsr			@ copia el actual SPSR en r8
+ 184 00cc 80012DE9 		STMFD	sp!, {r7,r8}		@ PUSH a la pila el SP y SPSR para resguardo de contexto
+ 185              		
+ 186 00d0 0D00A0E1 		MOV		r0,sp   			@ colocamos en r0 el stack pointer, para cumplir con la ABI, si necesitaramos algo
+ 187 00d4 FEFFFFEB 		BL	prefetch_abt_handler_c
+ 188              		
+ 189 00d8 8001BDE8 		LDMFD	sp!, {r7,r8}		@ POP de la pila para restaurar contexto previo a la atencion de IRQ
+ 190 00dc 08F069E1 		MSR		spsr, r8
+ 191 00e0 07D0A0E1 		MOV		sp, r7
+ 192 00e4 800008F1 		CPSIE i						@ habilita las interrupciones IRQ
+ 193 00e8 FF9FFDE8 		LDMFD	sp!, {r0-r12, pc}^	@ POP de los demas registros y salida de este IRQ_Handler
+ 194              	
+ 195              		/*The ^ qualifier specifies that the CPSR is restored from the SPSR. It must be used only from a p
+ 196              		
+ 197              		
+ 198              	
+ 199              	
+ 200              	/*-------------------------------------------------------------------------------------------------
+ 201              	/*
+ 202              	- Data Abort es generada por la MMU. Escenarios mas comunes: 
+ 203              		- Cuando se intenta acceder a una direccion de memoria invalida (sino hay memoria fisica asignada 
+ 204              		- Cuando se intenta acceder a una direccion de memoria para la cual no se dispone de los permisos 
+ 205              	- Sin embargo no hay problemas en suspender la atencion de un Data Abort para vectorizar el handler
+ 206              		- Eventualmente una vez que termina el handler de FIQ se retorna al de Data Abort y se continua co
+ 207              		- Decimos que Data Abort soporta anidamiento con FIQ.
+ 208              	Alejandro Furfaro ARMv7 - Gestion de Interrupciones 20 de julio de 2020 pag 22/64
+ 209              	 */
+ 210              	
+ 211              	Data_Abort_Handler:	
+ 212 00ec 80000CF1 		CPSID i 					@ deshabilita las interrupciones IRQ
+ 213 00f0 08E04EE2 		SUB	lr,lr, #8				@ resta 8 que en LR Apunte a la instruccion que causo el Abort
+ 214              	
+ 215 00f4 FF5F2DE9 		STMFD	sp!, {r0-r12,lr}	@ PUSH a la pila los registros
+ 216 00f8 0D70A0E1 		MOV		r7,sp				@ copia el stack pointer actual a r7
+ 217 00fc 00804FE1 		MRS		r8, spsr			@ copia el actual SPSR en r8
+ 218 0100 80012DE9 		STMFD	sp!, {r7,r8}		@ PUSH a la pila el SP y SPSR para resguardo de contexto
+ 219              	
+ 220 0104 0D00A0E1 		MOV		r0,sp   			@ colocamos en r0 el stack pointer, para cumplir con la ABI, si necesitaramos algo
+ 221 0108 FEFFFFEB 		BL	mem_abt_handler_c		
+ 222              		
+ 223 010c 8001BDE8 		LDMFD	sp!, {r7,r8}		@ POP de la pila para restaurar contexto previo a la atencion de IRQ
+ 224 0110 08F069E1 		MSR		spsr, r8
+ 225 0114 07D0A0E1 		MOV		sp, r7
+ 226 0118 800008F1 		CPSIE i						@ habilita las interrupciones IRQ
+ 227 011c FF9FFDE8 		LDMFD	sp!, {r0-r12, pc}^	@ POP de los demas registros y salida de este IRQ_Handler
+ 228              	
+ARM GAS  src/exception_handlers_asm.s 			page 5
+
+
+ 229              		/*The ^ qualifier specifies that the CPSR is restored from the SPSR. It must be used only from a p
+ 230              	
+ 231              	
+ 232              	
+ 233              	
+ 234              	/*-------------------------------------------------------------------------------------------------
+ 235              	IRQ_Handler:
+ 236 0120 80000CF1 		CPSID i 					@ deshabilita las interrupciones IRQ
+ 237              	
+ 238 0124 04E04EE2 		SUB	lr,lr, #4				@ resta 4 que en LR Retorne a la instruccion siguiente a la que recibio IRQ
+ 239              	
+ 240 0128 FF5F2DE9 		STMFD	sp!, {r0-r12,lr}	@ PUSH a la pila los registros
+ 241 012c 0D70A0E1 		MOV		r7,sp				@ copia el stack pointer actual a r7
+ 242 0130 00804FE1 		MRS		r8, spsr			@ copia el actual SPSR en r8
+ 243 0134 80012DE9 		STMFD	sp!, {r7,r8}		@ PUSH a la pila el SP y SPSR para resguardo de contexto
+ 244              		
+ 245              		//--- revisar aca si falta algo para poder cubrir la re-entrancia de interrupciones, mientras tant
+ 246              	
+ 247 0138 0D00A0E1 		MOV		r0,sp   			@ colocamos en r0 el stack pointer, para cumplir con la ABI, si necesitaramos algo
+ 248 013c FEFFFFEB 		BL		irq_handler_c
+ 249              		
+ 250 0140 8001BDE8 		LDMFD	sp!, {r7,r8}		@ POP de la pila para restaurar contexto previo a la atencion de IRQ
+ 251 0144 08F069E1 		MSR		spsr, r8
+ 252 0148 07D0A0E1 		MOV		sp, r7
+ 253 014c 800008F1 		CPSIE i						@ habilita las interrupciones IRQ
+ 254 0150 FF9FFDE8 		LDMFD	sp!, {r0-r12, pc}^	@ POP de los demas registros y salida de este IRQ_Handler
+ 255              	
+ 256              		/*The ^ qualifier specifies that the CPSR is restored from the SPSR. It must be used only from a p
+ 257 0154 6C000000 	
+ARM GAS  src/exception_handlers_asm.s 			page 6
+
+
+DEFINED SYMBOLS
+src/exception_handlers_asm.s:26     *ABS*:0000000000000020 T_BIT
+src/exception_handlers_asm.s:46     .exception_handlers:0000000000000000 SVC_Handler
+src/exception_handlers_asm.s:141    .exception_handlers:000000000000008c Undefined_Handler
+src/exception_handlers_asm.s:174    .exception_handlers:00000000000000bc Prefetch_Handler
+src/exception_handlers_asm.s:211    .exception_handlers:00000000000000ec Data_Abort_Handler
+src/exception_handlers_asm.s:235    .exception_handlers:0000000000000120 IRQ_Handler
+src/exception_handlers_asm.s:49     .exception_handlers:0000000000000000 $a
+src/exception_handlers_asm.s:121    .exception_handlers:0000000000000088 rango_jump_table
+src/exception_handlers_asm.s:97     .exception_handlers:0000000000000058 default_case
+src/exception_handlers_asm.s:111    .exception_handlers:000000000000006c jump_table
+src/exception_handlers_asm.s:83     .exception_handlers:0000000000000040 case_0
+src/exception_handlers_asm.s:101    .exception_handlers:0000000000000060 exit
+src/exception_handlers_asm.s:86     .exception_handlers:0000000000000044 case_1
+src/exception_handlers_asm.s:118    .exception_handlers:0000000000000080 str1
+src/exception_handlers_asm.s:90     .exception_handlers:000000000000004c case_2
+src/exception_handlers_asm.s:94     .exception_handlers:0000000000000054 case_3
+src/exception_handlers_asm.s:119    .exception_handlers:0000000000000084 str2
+src/exception_handlers_asm.s:112    .exception_handlers:000000000000006c case_0_addr
+src/exception_handlers_asm.s:112    .exception_handlers:000000000000006c $d
+src/exception_handlers_asm.s:113    .exception_handlers:0000000000000070 case_1_addr
+src/exception_handlers_asm.s:114    .exception_handlers:0000000000000074 case_2_addr
+src/exception_handlers_asm.s:115    .exception_handlers:0000000000000078 case_3_addr
+src/exception_handlers_asm.s:116    .exception_handlers:000000000000007c default_case_addr
+src/exception_handlers_asm.s:142    .exception_handlers:000000000000008c $a
+src/exception_handlers_asm.s:257    .exception_handlers:0000000000000154 $d
+
+UNDEFINED SYMBOLS
+svc_handler_c
+und_inst_handler_c
+prefetch_abt_handler_c
+mem_abt_handler_c
+irq_handler_c

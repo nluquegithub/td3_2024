@@ -1,0 +1,283 @@
+ELF Header:
+  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              EXEC (Executable file)
+  Machine:                           ARM
+  Version:                           0x1
+  Entry point address:               0x70010000
+  Start of program headers:          52 (bytes into file)
+  Start of section headers:          340984 (bytes into file)
+  Flags:                             0x5000400, Version5 EABI, hard-float ABI
+  Size of this header:               52 (bytes)
+  Size of program headers:           32 (bytes)
+  Number of program headers:         7
+  Size of section headers:           40 (bytes)
+  Number of section headers:         20
+  Section header string table index: 19
+
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] ._startup_out     PROGBITS        70010000 010000 000074 00  AX  0   0  4
+  [ 2] .vector_table_out PROGBITS        00000000 020000 000034 00  AX  0   0  4
+  [ 3] .reset_out        PROGBITS        70030000 030000 000194 00  AX  0   0  4
+  [ 4] .kernel_out       PROGBITS        70040000 040000 0002f8 00  AX  0   0  4
+  [ 5] .data_out         PROGBITS        70030194 050194 00003c 00  WA  0   0  4
+  [ 6] .bss_out          NOBITS          700301d0 0501d0 000028 00  WA  0   0  1
+  [ 7] .stacks_out       NOBITS          70020000 050000 00c000 00  WA  0   0  1
+  [ 8] .ARM.attributes   ARM_ATTRIBUTES  00000000 0501d0 00002f 00      0   0  1
+  [ 9] .comment          PROGBITS        00000000 0501ff 000024 01  MS  0   0  1
+  [10] .debug_line       PROGBITS        00000000 050223 0005d9 00      0   0  1
+  [11] .debug_info       PROGBITS        00000000 0507fc 000c43 00      0   0  1
+  [12] .debug_abbrev     PROGBITS        00000000 05143f 000375 00      0   0  1
+  [13] .debug_aranges    PROGBITS        00000000 0517b8 000180 00      0   0  8
+  [14] .debug_ranges     PROGBITS        00000000 051938 000090 00      0   0  1
+  [15] .debug_str        PROGBITS        00000000 0519c8 000450 01  MS  0   0  1
+  [16] .debug_frame      PROGBITS        00000000 051e18 000128 00      0   0  4
+  [17] .symtab           SYMTAB          00000000 051f40 000ba0 10     18 110  4
+  [18] .strtab           STRTAB          00000000 052ae0 000831 00      0   0  1
+  [19] .shstrtab         STRTAB          00000000 053311 0000e5 00      0   0  1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  D (mbind), y (purecode), p (processor specific)
+
+There are no section groups in this file.
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  LOAD           0x010000 0x70010000 0x70010000 0x00074 0x00074 R E 0x10000
+  LOAD           0x020000 0x00000000 0x70010074 0x00034 0x00034 R E 0x10000
+  LOAD           0x030000 0x70030000 0x700100a8 0x00194 0x00194 R E 0x10000
+  LOAD           0x040000 0x70040000 0x7001023c 0x002f8 0x002f8 R E 0x10000
+  LOAD           0x050000 0x70020000 0x70020000 0x00000 0x0c000 RW  0x10000
+  LOAD           0x050194 0x70030194 0x70030194 0x0003c 0x00064 RW  0x10000
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RWE 0x10
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     ._startup_out 
+   01     .vector_table_out 
+   02     .reset_out 
+   03     .kernel_out 
+   04     .stacks_out 
+   05     .data_out .bss_out 
+   06     
+
+There is no dynamic section in this file.
+
+There are no relocations in this file.
+
+There are no unwind sections in this file.
+
+Symbol table '.symtab' contains 186 entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 70010000     0 SECTION LOCAL  DEFAULT    1 ._startup_out
+     2: 00000000     0 SECTION LOCAL  DEFAULT    2 .vector_table_out
+     3: 70030000     0 SECTION LOCAL  DEFAULT    3 .reset_out
+     4: 70040000     0 SECTION LOCAL  DEFAULT    4 .kernel_out
+     5: 70030194     0 SECTION LOCAL  DEFAULT    5 .data_out
+     6: 700301d0     0 SECTION LOCAL  DEFAULT    6 .bss_out
+     7: 70020000     0 SECTION LOCAL  DEFAULT    7 .stacks_out
+     8: 00000000     0 SECTION LOCAL  DEFAULT    8 .ARM.attributes
+     9: 00000000     0 SECTION LOCAL  DEFAULT    9 .comment
+    10: 00000000     0 SECTION LOCAL  DEFAULT   10 .debug_line
+    11: 00000000     0 SECTION LOCAL  DEFAULT   11 .debug_info
+    12: 00000000     0 SECTION LOCAL  DEFAULT   12 .debug_abbrev
+    13: 00000000     0 SECTION LOCAL  DEFAULT   13 .debug_aranges
+    14: 00000000     0 SECTION LOCAL  DEFAULT   14 .debug_ranges
+    15: 00000000     0 SECTION LOCAL  DEFAULT   15 .debug_str
+    16: 00000000     0 SECTION LOCAL  DEFAULT   16 .debug_frame
+    17: 00000000     0 FILE    LOCAL  DEFAULT  ABS obj/_startup.o
+    18: 70010000     0 NOTYPE  LOCAL  DEFAULT    1 $a
+    19: 70010038     0 NOTYPE  LOCAL  DEFAULT    1 memcpy_rom
+    20: 7001003c     0 NOTYPE  LOCAL  DEFAULT    1 fast_copy
+    21: 70010050     0 NOTYPE  LOCAL  DEFAULT    1 $d
+    22: 00000000     0 FILE    LOCAL  DEFAULT  ABS obj/vector_table.o
+    23: 0000001c     0 NOTYPE  LOCAL  DEFAULT    2 Reset_Addr
+    24: 00000000     0 NOTYPE  LOCAL  DEFAULT    2 $a
+    25: 00000020     0 NOTYPE  LOCAL  DEFAULT    2 Undefined_Addr
+    26: 00000024     0 NOTYPE  LOCAL  DEFAULT    2 SVC_Addr
+    27: 00000028     0 NOTYPE  LOCAL  DEFAULT    2 Prefetch_Addr
+    28: 0000002c     0 NOTYPE  LOCAL  DEFAULT    2 Data_Abort_Addr
+    29: 00000030     0 NOTYPE  LOCAL  DEFAULT    2 IRQ_Addr
+    30: 0000001c     0 NOTYPE  LOCAL  DEFAULT    2 $d
+    31: 00000000     0 FILE    LOCAL  DEFAULT  ABS obj/reset.o
+    32: 00000010     0 NOTYPE  LOCAL  DEFAULT  ABS USR_MODE
+    33: 00000011     0 NOTYPE  LOCAL  DEFAULT  ABS FIQ_MODE
+    34: 00000012     0 NOTYPE  LOCAL  DEFAULT  ABS IRQ_MODE
+    35: 00000013     0 NOTYPE  LOCAL  DEFAULT  ABS SVC_MODE
+    36: 00000017     0 NOTYPE  LOCAL  DEFAULT  ABS ABT_MODE
+    37: 0000001b     0 NOTYPE  LOCAL  DEFAULT  ABS UND_MODE
+    38: 0000001f     0 NOTYPE  LOCAL  DEFAULT  ABS SYS_MODE
+    39: 00000080     0 NOTYPE  LOCAL  DEFAULT  ABS I_BIT
+    40: 00000040     0 NOTYPE  LOCAL  DEFAULT  ABS F_BIT
+    41: f0000000     0 NOTYPE  LOCAL  DEFAULT  ABS NZCV_bits
+    42: 0000001f     0 NOTYPE  LOCAL  DEFAULT  ABS MODE_bits
+    43: 70030000     0 NOTYPE  LOCAL  DEFAULT    3 $a
+    44: 70030014     0 NOTYPE  LOCAL  DEFAULT    3 stack_setup
+    45: 7003008c     0 NOTYPE  LOCAL  DEFAULT    3 clear_bss
+    46: 7003009c     0 NOTYPE  LOCAL  DEFAULT    3 hardware_init
+    47: 700300c4     0 NOTYPE  LOCAL  DEFAULT    3 $d
+    48: 00000000     0 FILE    LOCAL  DEFAULT  ABS obj/memory_func.o
+    49: 700300f0     0 NOTYPE  LOCAL  DEFAULT    3 clear_loop
+    50: 700300f0     0 NOTYPE  LOCAL  DEFAULT    3 $a
+    51: 70030100     0 NOTYPE  LOCAL  DEFAULT    3 clear_end
+    52: 7003011c     0 NOTYPE  LOCAL  DEFAULT    3 memcpy_end
+    53: 7003010c     0 NOTYPE  LOCAL  DEFAULT    3 memcpy_loop
+    54: 70030124     0 NOTYPE  LOCAL  DEFAULT    3 copy_8w
+    55: 00000000     0 FILE    LOCAL  DEFAULT  ABS gic_c.c
+    56: 70030138     0 NOTYPE  LOCAL  DEFAULT    3 $t
+    57: 00000010     0 NOTYPE  LOCAL  DEFAULT   16 $d
+    58: 00000000     0 FILE    LOCAL  DEFAULT  ABS timer_c.c
+    59: 7003015c     0 NOTYPE  LOCAL  DEFAULT    3 $t
+    60: 00000118     0 NOTYPE  LOCAL  DEFAULT   16 $d
+    61: 00000000     0 FILE    LOCAL  DEFAULT  ABS obj/exception_ha[...]
+    62: 00000020     0 NOTYPE  LOCAL  DEFAULT  ABS T_BIT
+    63: 70040000     0 NOTYPE  LOCAL  DEFAULT    4 $a
+    64: 70040088     0 NOTYPE  LOCAL  DEFAULT    4 rango_jump_table
+    65: 70040058     0 NOTYPE  LOCAL  DEFAULT    4 default_case
+    66: 7004006c     0 NOTYPE  LOCAL  DEFAULT    4 jump_table
+    67: 70040040     0 NOTYPE  LOCAL  DEFAULT    4 case_0
+    68: 70040060     0 NOTYPE  LOCAL  DEFAULT    4 exit
+    69: 70040044     0 NOTYPE  LOCAL  DEFAULT    4 case_1
+    70: 70040080     0 NOTYPE  LOCAL  DEFAULT    4 str1
+    71: 7004004c     0 NOTYPE  LOCAL  DEFAULT    4 case_2
+    72: 70040054     0 NOTYPE  LOCAL  DEFAULT    4 case_3
+    73: 70040084     0 NOTYPE  LOCAL  DEFAULT    4 str2
+    74: 7004006c     0 NOTYPE  LOCAL  DEFAULT    4 case_0_addr
+    75: 7004006c     0 NOTYPE  LOCAL  DEFAULT    4 $d
+    76: 70040070     0 NOTYPE  LOCAL  DEFAULT    4 case_1_addr
+    77: 70040074     0 NOTYPE  LOCAL  DEFAULT    4 case_2_addr
+    78: 70040078     0 NOTYPE  LOCAL  DEFAULT    4 case_3_addr
+    79: 7004007c     0 NOTYPE  LOCAL  DEFAULT    4 default_case_addr
+    80: 7004008c     0 NOTYPE  LOCAL  DEFAULT    4 $a
+    81: 70040154     0 NOTYPE  LOCAL  DEFAULT    4 $d
+    82: 00000000     0 FILE    LOCAL  DEFAULT  ABS exception_handlers.c
+    83: 70040158     0 NOTYPE  LOCAL  DEFAULT    4 $t
+    84: 700301bc     0 NOTYPE  LOCAL  DEFAULT    5 .LANCHOR0
+    85: 700301bc     0 NOTYPE  LOCAL  DEFAULT    5 $d
+    86: 700301bc     4 OBJECT  LOCAL  DEFAULT    5 static_var_TMR.5612
+    87: 700301c0     4 OBJECT  LOCAL  DEFAULT    5 static_var_INV.5615
+    88: 700301c4     4 OBJECT  LOCAL  DEFAULT    5 static_var_MEM.5618
+    89: 700301c8     4 OBJECT  LOCAL  DEFAULT    5 static_var_PRF.5621
+    90: 700301cc     4 OBJECT  LOCAL  DEFAULT    5 static_var_SVC.5624
+    91: 00000030     0 NOTYPE  LOCAL  DEFAULT   16 $d
+    92: 00000000     0 FILE    LOCAL  DEFAULT  ABS obj/kernel.o
+    93: 7004023c     0 NOTYPE  LOCAL  DEFAULT    4 $a
+    94: 70040254     0 NOTYPE  LOCAL  DEFAULT    4 idle
+    95: 00000000     0 FILE    LOCAL  DEFAULT  ABS obj/bubble_sort.o
+    96: 700301d0     0 NOTYPE  LOCAL  DEFAULT    6 variables_no_init
+    97: 7004025c     0 NOTYPE  LOCAL  DEFAULT    4 $a
+    98: 70030194     0 NOTYPE  LOCAL  DEFAULT    5 variables_init
+    99: 7004026c     0 NOTYPE  LOCAL  DEFAULT    4 bubble_start
+   100: 70040284     0 NOTYPE  LOCAL  DEFAULT    4 compare
+   101: 700402d0     0 NOTYPE  LOCAL  DEFAULT    4 swap_values
+   102: 70040294     0 NOTYPE  LOCAL  DEFAULT    4 next_in
+   103: 700402a8     0 NOTYPE  LOCAL  DEFAULT    4 next_out
+   104: 7004029c     0 NOTYPE  LOCAL  DEFAULT    4 next_in_set
+   105: 700402ec     0 NOTYPE  LOCAL  DEFAULT    4 bubble_end
+   106: 700402bc     0 NOTYPE  LOCAL  DEFAULT    4 next_out_set
+   107: 700301d0     0 NOTYPE  LOCAL  DEFAULT    6 $d
+   108: 700402f0     0 NOTYPE  LOCAL  DEFAULT    4 $d
+   109: 70030194     0 NOTYPE  LOCAL  DEFAULT    5 $d
+   110: 0000003c     0 NOTYPE  GLOBAL DEFAULT  ABS __DATA_SIZE
+   111: 700100a8     0 NOTYPE  GLOBAL DEFAULT  ABS __RESET_START_LMA
+   112: 70030194     0 NOTYPE  GLOBAL DEFAULT    5 __data_start__
+   113: 700401b5    28 FUNC    GLOBAL DEFAULT    4 und_inst_handler_c
+   114: 70030194     0 NOTYPE  GLOBAL DEFAULT  ABS __DATA_START_LMA
+   115: 00001000     0 NOTYPE  GLOBAL DEFAULT  ABS __FIQ_STACK_SIZE
+   116: 7002b000     0 NOTYPE  GLOBAL DEFAULT    7 __UND_STACK_END
+   117: 70040120     0 NOTYPE  GLOBAL DEFAULT    4 IRQ_Handler
+   118: 7004023c     0 NOTYPE  GLOBAL DEFAULT    4 __HANDLERS_END_VMA
+   119: 70026000     0 NOTYPE  GLOBAL DEFAULT    7 __SVC_STACK_START
+   120: 00001000     0 NOTYPE  GLOBAL DEFAULT  ABS __GAP_SIZE
+   121: 00000028     0 NOTYPE  GLOBAL DEFAULT  ABS __BSS_SIZE
+   122: 70040225     6 FUNC    GLOBAL DEFAULT    4 trigger_und_inst[...]
+   123: 70030194     0 NOTYPE  GLOBAL DEFAULT    3 __RESET_END_VMA
+   124: 7004008c     0 NOTYPE  GLOBAL DEFAULT    4 Undefined_Handler
+   125: 00000194     0 NOTYPE  GLOBAL DEFAULT  ABS __RESET_SIZE
+   126: 00000000     0 NOTYPE  GLOBAL DEFAULT    2 __VECTOR_TABLE_S[...]
+   127: 00000034     0 NOTYPE  GLOBAL DEFAULT    2 __VECTOR_TABLE_E[...]
+   128: 700301d0     0 NOTYPE  GLOBAL DEFAULT    6 __bss_start__
+   129: 70010000     0 NOTYPE  GLOBAL DEFAULT    1 __STARTUP_START_VMA
+   130: 70028000     0 NOTYPE  GLOBAL DEFAULT    7 __ABT_STACK_START
+   131: 70029000     0 NOTYPE  GLOBAL DEFAULT    7 __ABT_STACK_END
+   132: 00000034     0 NOTYPE  GLOBAL DEFAULT  ABS __VECTOR_TABLE_SIZE
+   133: 00001000     0 NOTYPE  GLOBAL DEFAULT  ABS __ABT_STACK_SIZE
+   134: 00001000     0 NOTYPE  GLOBAL DEFAULT  ABS __SVC_STACK_SIZE
+   135: 70030000     0 NOTYPE  GLOBAL DEFAULT    3 Reset_Handler
+   136: 70010074     0 NOTYPE  GLOBAL DEFAULT    1 __STARTUP_END_VMA
+   137: 70022000     0 NOTYPE  GLOBAL DEFAULT    7 __IRQ_STACK_START
+   138: 7003015d    54 FUNC    GLOBAL DEFAULT    3 timer_init
+   139: 70030000     0 NOTYPE  GLOBAL DEFAULT    3 __RESET_START_VMA
+   140: 700402f8     0 NOTYPE  GLOBAL DEFAULT    4 __KERNEL_END_VMA
+   141: 70010000     0 NOTYPE  GLOBAL DEFAULT  ABS __PUBLIC_ROM_INIT
+   142: 70020000     0 NOTYPE  GLOBAL DEFAULT  ABS __PUBLIC_STACK_INIT
+   143: 00001000     0 NOTYPE  GLOBAL DEFAULT  ABS __UND_STACK_SIZE
+   144: 70040159    64 FUNC    GLOBAL DEFAULT    4 irq_handler_c
+   145: 700301d0     0 NOTYPE  GLOBAL DEFAULT    5 __data_end__
+   146: 70030139    36 FUNC    GLOBAL DEFAULT    3 gic_init
+   147: 00000000     0 NOTYPE  GLOBAL DEFAULT  ABS __VECTOR_TABLE_BASE
+   148: 00000000     0 NOTYPE  GLOBAL DEFAULT    2 Vector_Table
+   149: 700301f8     0 NOTYPE  GLOBAL DEFAULT    6 __bss_end__
+   150: 70010000     0 NOTYPE  GLOBAL DEFAULT    1 _start
+   151: 700400ec     0 NOTYPE  GLOBAL DEFAULT    4 Data_Abort_Handler
+   152: 000002f8     0 NOTYPE  GLOBAL DEFAULT  ABS __KERNEL_SIZE
+   153: 70040235     8 FUNC    GLOBAL DEFAULT    4 trigger_mem_abt_excep
+   154: 7004023c     0 NOTYPE  GLOBAL DEFAULT    4 Inicializado
+   155: 70040209    28 FUNC    GLOBAL DEFAULT    4 svc_handler_c
+   156: 700400bc     0 NOTYPE  GLOBAL DEFAULT    4 Prefetch_Handler
+   157: 70020000     0 NOTYPE  GLOBAL DEFAULT    7 __SYS_STACK_START
+   158: 70040000     0 NOTYPE  GLOBAL DEFAULT  ABS __KERNEL_START_VMA
+   159: 70025000     0 NOTYPE  GLOBAL DEFAULT    7 __FIQ_STACK_END
+   160: 7002a000     0 NOTYPE  GLOBAL DEFAULT    7 __UND_STACK_START
+   161: 7002c000     0 NOTYPE  GLOBAL DEFAULT    7 __ARM_STACKS_END_VMA
+   162: 70040199    28 FUNC    GLOBAL DEFAULT    4 timer0_handler_c
+   163: 70040000     0 NOTYPE  GLOBAL DEFAULT    4 SVC_Handler
+   164: 7004022d     6 FUNC    GLOBAL DEFAULT    4 trigger_prefetch[...]
+   165: 700401d1    28 FUNC    GLOBAL DEFAULT    4 mem_abt_handler_c
+   166: 70040000     0 NOTYPE  GLOBAL DEFAULT    4 __HANDLERS_START_VMA
+   167: 700401ed    28 FUNC    GLOBAL DEFAULT    4 prefetch_abt_han[...]
+   168: 70010074     0 NOTYPE  GLOBAL DEFAULT  ABS __VECTOR_TABLE_S[...]
+   169: 70027000     0 NOTYPE  GLOBAL DEFAULT    7 __SVC_STACK_END
+   170: 70021000     0 NOTYPE  GLOBAL DEFAULT    7 __SYS_STACK_END
+   171: 700300f0     0 NOTYPE  GLOBAL DEFAULT    3 clear_bytes
+   172: 700301d0     0 NOTYPE  GLOBAL DEFAULT  ABS __BSS_START_LMA
+   173: 0000001c     0 NOTYPE  GLOBAL DEFAULT    2 FIQ_Handler
+   174: 70020000     0 NOTYPE  GLOBAL DEFAULT    7 __ARM_STACKS_STA[...]
+   175: 70030000     0 NOTYPE  GLOBAL DEFAULT  ABS __PUBLIC_RAM_INIT
+   176: 0000c000     0 NOTYPE  GLOBAL DEFAULT  ABS __ARM_STACKS_SIZE
+   177: 00001000     0 NOTYPE  GLOBAL DEFAULT  ABS __SYS_STACK_SIZE
+   178: 70030104     0 NOTYPE  GLOBAL DEFAULT    3 memcpy_bytes
+   179: 70020000     0 NOTYPE  GLOBAL DEFAULT  ABS __ARM_STACKS_STA[...]
+   180: 7004025c     0 NOTYPE  GLOBAL DEFAULT    4 bubble_sort
+   181: 70030120     0 NOTYPE  GLOBAL DEFAULT    3 memcpy_8w
+   182: 70023000     0 NOTYPE  GLOBAL DEFAULT    7 __IRQ_STACK_END
+   183: 70024000     0 NOTYPE  GLOBAL DEFAULT    7 __FIQ_STACK_START
+   184: 7001023c     0 NOTYPE  GLOBAL DEFAULT  ABS __KERNEL_START_LMA
+   185: 00001000     0 NOTYPE  GLOBAL DEFAULT  ABS __IRQ_STACK_SIZE
+
+No version information found in this file.
+Attribute Section: aeabi
+File Attributes
+  Tag_CPU_name: "7-A"
+  Tag_CPU_arch: v7
+  Tag_CPU_arch_profile: Application
+  Tag_ARM_ISA_use: Yes
+  Tag_THUMB_ISA_use: Thumb-2
+  Tag_FP_arch: VFPv3-D16
+  Tag_ABI_PCS_wchar_t: 4
+  Tag_ABI_FP_denormal: Needed
+  Tag_ABI_FP_exceptions: Needed
+  Tag_ABI_FP_number_model: IEEE 754
+  Tag_ABI_align_needed: 8-byte
+  Tag_ABI_enum_size: int
+  Tag_ABI_VFP_args: VFP registers
+  Tag_CPU_unaligned_access: v6
